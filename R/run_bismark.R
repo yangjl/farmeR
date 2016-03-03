@@ -23,7 +23,7 @@
 #' runa_bismark(input_df, genome="/home/jolyang/dbcenter/AGP/AGPv2",
 #' cpu=4, outdir="/group/jrigrp4/BS_teo20/WGBS/BSM", arrayjobs="1-5", jobid="bs1-5",
 #' email=NULL)
-#'
+#' @export
 runa_bismark <- function(input_df,
                          genome="/home/jolyang/dbcenter/AGP/AGPv2",
                          cpu=4,

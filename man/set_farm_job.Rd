@@ -28,6 +28,5 @@ Note, bigmem mem=8000/cpu, hi/med/low mem=25000/cpu, serial mem=1500/cpu.
 }
 \examples{
 
-
 }
 
