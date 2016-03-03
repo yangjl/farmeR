@@ -42,7 +42,7 @@ runa_bismark <- function(input_df,
     #outfile <- paste0(outdir, "/", out)
     cmd <- paste("bismark --bowtie2 -n 1", genome, "-p", cpu,
                  "-1", input_df$fq1[i],  "-2", input_df$fq2[i],
-                 "--outdir", outdir,  "--basename", input_df$out[i])
+                 "--output_dir", outdir,  "--basename", input_df$out[i])
 
     cat(cmd, file=shid, sep="\n", append=FALSE)
   }
