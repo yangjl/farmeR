@@ -1,8 +1,10 @@
 Package: maizeR
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.2.3)
-License: What license is it under?
+Title: Generate pipelines for maize Genomic and Genetic analysis
+Version: 0.0.0.9001
+Authors@R: person("Jinliang", "Yang", email = "yangjl0930@gmail.com", role = c("aut", "cre"))
+Description: Collection of maize genomic and genetic analysis tools.
+Depends:
+    R (>= 3.2.3)
+License: GPL (>= 2)
 LazyData: true
+RoxygenNote: 5.0.1

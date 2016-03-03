@@ -10,7 +10,14 @@ Install [devtools](https://github.com/hadley/devtools) first, and then use `devt
 devtools::install_github("hadley/devtools")
 library(devtools)
 install_github("yangjl/maizeR")
-library(imputeR)
+library(maizeR)
+
+```
+List all the functions in the package.
+
+```R
+ls(getNamespace("maizeR"), all.names=TRUE)
+
 ```
 
 ## Documentation
