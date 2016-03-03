@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 vignettes/
+slurm-log/
+slurm-script/
