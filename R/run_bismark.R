@@ -35,7 +35,7 @@ runa_bismark <- function(input_df,
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
 
-  for(i in 1:length(input_df)){
+  for(i in 1:nrow(input_df)){
 
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
     #out <- gsub(".*/", "", out)
