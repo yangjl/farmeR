@@ -38,9 +38,6 @@ http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf
 }
 \examples{
 input_df <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
-runa_bismark(input_df, genome="/home/jolyang/dbcenter/AGP/AGPv2",
-cpu=4, outdir="/group/jrigrp4/BS_teo20/WGBS/BSM", arrayjobs="1-2",
-jobid="bs1-2", email="yangjl0930@gmail.com")
 
 }
 
