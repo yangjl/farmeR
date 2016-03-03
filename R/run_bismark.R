@@ -1,25 +1,28 @@
-#' Run array Bismark job on farm
+#' \code{Run array Bismark job on farm}
 #'
 #' Run bowtie2/2.2.5
 #' Run bismark/0.14.3
 #'
-#' Allow one mismatch 'n 1'
+#' Allow one mismatch n=1
 #'
 #' see more detail about Bismark:
-#' http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf
+#' \url{http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf}
 #'
 #' @param input_df An input data.frame object. Must contains fq1, fq2 and out.
 #' @param genome The folder of genome prepared by bismark.
 #' @param cpu Number of CPU to use per job.
 #' @param outdir Folder for output.
-#' @param arrayjobs A character specify the number of array you try to run, i.e. '1-100'.
-#' @param jobid The job name show up in your sq "NAME' column.
+#' @param arrayjobs A character specify the number of array you try to run, i.e. 1-100.
+#' @param jobid The job name show up in your sq NAME column.
 #' @param email Your email address that farm will email to once the job was done/failed.
 #'
-#' @return a batch of shell scripts.
+#' @return return a batch of shell scripts.
+#'
 #' @examples
 #' input_df <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
-#'
+#' runa_bismark(input_df, genome="/home/jolyang/dbcenter/AGP/AGPv2",
+#' cpu=4, outdir="/group/jrigrp4/BS_teo20/WGBS/BSM", arrayjobs="1-5", jobid="bs1-5",
+#' email=NULL)
 #'
 runa_bismark <- function(input_df,
                          genome="/home/jolyang/dbcenter/AGP/AGPv2",

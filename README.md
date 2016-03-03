@@ -10,9 +10,16 @@ Install [devtools](https://github.com/hadley/devtools) first, and then use `devt
 devtools::install_github("hadley/devtools")
 library(devtools)
 install_github("yangjl/maizeR")
-load_all()
-
+library(maizeR)
 ```
+
+OR
+```R
+git clone 
+library(devtools)
+load_all(maizeR)
+```
+
 List all the functions in the package.
 
 ```R
