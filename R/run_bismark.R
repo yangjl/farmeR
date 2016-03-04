@@ -48,7 +48,7 @@ runa_bismark <- function(input_df,
   }
 
   shcode <- paste("module load bismark/0.14.3", "module load bowtie2/2.2.5",
-                  "sh slurm-script/run_bs2vcf_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
+                  "sh slurm-script/run_bismark_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
 
   set_array_job(shid="slurm-script/run_bismark_array.sh",
                 shcode=shcode, arrayjobs=arrayjobs,
