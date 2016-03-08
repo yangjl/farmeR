@@ -37,7 +37,6 @@ see more detail about Bismark:
 http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf
 }
 \examples{
-input_df <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
 
 
 }

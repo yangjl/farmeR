@@ -12,7 +12,8 @@
 #'
 #' @return a shell file.
 #' @examples
-#'
+#' set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
+#' shcode="sh largedata/myscript.sh", arrayjobs="1-700",wd=NULL, jobid="myjob", email=NULL)
 #'
 set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",

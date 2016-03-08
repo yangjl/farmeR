@@ -18,7 +18,6 @@
 #'
 #' @return a batch of shell scripts.
 #' @examples
-#' input_df <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
 #'
 #'
 runa_bismark <- function(input_df,
