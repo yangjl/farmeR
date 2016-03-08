@@ -1,4 +1,3 @@
-
 #' \code{Run array Bismark job on farm}
 #'
 #' Run bowtie2/2.2.5
