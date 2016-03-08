@@ -32,6 +32,13 @@
 #' @return return a shell file.
 #'
 #' @examples
+#' for(i in 1:10){
+#'     shid <- paste0("slurm-script/run_", i, ".sh")
+#'     command <- paste0("bedtools getfasta -name -tab -fi roast.chrom.", i, ".msa.in")
+#'     cat(command, file=shid, sep="\n", append=FALSE)
+#' }
+#' shcode <- paste("module load bismark/0.14.3", "sh slurm-script/run_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
+#'
 #'
 #' @export
 

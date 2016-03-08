@@ -57,6 +57,13 @@ Farm is a computer cluster running slurm system.
 Note, bigmem mem=8000 per cpu, hi med low mem=25000 per cpu, serial mem=1500 per cpu.
 }
 \examples{
+for(i in 1:10){
+    shid <- paste0("slurm-script/run_", i, ".sh")
+    command <- paste0("bedtools getfasta -name -tab -fi roast.chrom.", i, ".msa.in")
+    cat(command, file=shid, sep="\\n", append=FALSE)
+}
+shcode <- paste("module load bismark/0.14.3", "sh slurm-script/run_$SLURM_ARRAY_TASK_ID.sh", sep="\\n")
+
 
 >>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 }
