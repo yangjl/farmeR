@@ -2,26 +2,13 @@
 % Please edit documentation in R/set_arrayjob.R
 \name{set_farm_job}
 \alias{set_farm_job}
-<<<<<<< HEAD
-\title{Set up one farm job}
-=======
 \title{\code{Set up one farm job}}
->>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 \usage{
 set_farm_job(slurmsh = "largedata/GenSel/CL_test.sh",
   shcode = "sh largedata/myscript.sh", wd = NULL, jobid = "myjob",
   email = NULL)
 }
 \arguments{
-<<<<<<< HEAD
-\item{slurmsh}{Relative or absolute path and file name of your shell code, i.e. 'largedata/GenSel/CL_test.sh'.}
-
-\item{shcode}{The commands inside your sh file.}
-
-\item{wd}{Working directory, default=NULL => using your current directory.}
-
-\item{jobid}{The job name show up in your sq "NAME' column.}
-=======
 \item{slurmsh}{Relative or absolute path and file name of your shell code, i.e. largedata/GenSel/CL_test.sh.}
 
 \item{shcode}{The commands inside your sh file.}
@@ -29,7 +16,6 @@ set_farm_job(slurmsh = "largedata/GenSel/CL_test.sh",
 \item{wd}{Working directory, default=NULL. It will use your current directory.}
 
 \item{jobid}{The job name show up in your sq NAME column.}
->>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 
 \item{email}{Your email address that farm will email to once the job was done/failed.}
 }
@@ -37,19 +23,16 @@ set_farm_job(slurmsh = "largedata/GenSel/CL_test.sh",
 a shell file.
 }
 \description{
-<<<<<<< HEAD
-'Farm' is a computer cluster running slurm system.
-Note, 'bigmem' mem=8000/cpu, "hi/med/low' mem=25000/cpu, "serial" mem=1500/cpu.
-}
-\examples{
-
-
-=======
 Farm is a computer cluster running slurm system.
 Note, bigmem mem=8000/cpu, hi/med/low mem=25000/cpu, serial mem=1500/cpu.
 }
 \examples{
+cmd <- paste0("snpconvert -a largedata/teo_updated/teo_raw_biallelic.hmp.txt",
+" -i largedata/teo_updated/TeoCurated_20160308_AGPv2_flt_maf005m2.txt -s 12",
+" -o largedata/teo_updated/teo_raw_biallelic_recoded_20160303_AGPv2.txt")
 
->>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
+set_farm_job(slurmsh = "largedata/scripts/run_snpconvert.sh",
+shcode = cmd, wd = NULL, jobid = "snpconvert", email=NULL)
+
 }
 

@@ -1,6 +1,6 @@
 Package: maizeR
 Title: Generate pipelines for maize Genomic and Genetic analysis
-Version: 0.0.0.9003
+Version: 0.0.1.9004
 Authors@R: person("Jinliang", "Yang", email = "yangjl0930@gmail.com", role = c("aut", "cre"))
 Description: Collection of maize genomic and genetic analysis tools.
 Depends:

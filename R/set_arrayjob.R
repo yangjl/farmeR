@@ -20,9 +20,10 @@
 #' }
 #' shcode <- paste("module load bismark/0.14.3", "sh slurm-script/run_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
 #'
+#' set_array_job(shid="slurm-script/run.sh", shcode=shcode,
+#'               arrayjobs="1-10", wd=NULL, jobid="myjob", email=NULL)
 #'
 #' @export
-
 set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          arrayjobs="1-700",
@@ -82,6 +83,12 @@ set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
 #' @return a shell file.
 #'
 #' @examples
+#' cmd <- paste0("snpconvert -a largedata/teo_updated/teo_raw_biallelic.hmp.txt",
+#' " -i largedata/teo_updated/TeoCurated_20160308_AGPv2_flt_maf005m2.txt -s 12",
+#' " -o largedata/teo_updated/teo_raw_biallelic_recoded_20160303_AGPv2.txt")
+#'
+#' set_farm_job(slurmsh = "largedata/scripts/run_snpconvert.sh",
+#' shcode = cmd, wd = NULL, jobid = "snpconvert", email=NULL)
 #'
 #' @export
 set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",

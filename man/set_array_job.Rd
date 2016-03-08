@@ -2,41 +2,13 @@
 % Please edit documentation in R/set_arrayjob.R
 \name{set_array_job}
 \alias{set_array_job}
-<<<<<<< HEAD
-\title{Set up array job on farm}
-=======
 \title{\code{Set up array job on farm}}
->>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 \usage{
 set_array_job(shid = "largedata/GenSel/CL_test.sh",
   shcode = "sh largedata/myscript.sh", arrayjobs = "1-700", wd = NULL,
   jobid = "myjob", email = NULL)
 }
 \arguments{
-<<<<<<< HEAD
-\item{shid}{Relative or absolute path and file name of your shell code, i.e. 'largedata/GenSel/CL_test.sh'.}
-
-\item{shcode}{The commands inside your sh file.}
-
-\item{arrayjobs}{A character specify the number of array you try to run, i.e. '1-100'.}
-
-\item{wd}{Working directory, default=NULL => using your current directory.}
-
-\item{jobid}{The job name show up in your sq "NAME' column.}
-
-\item{email}{Your email address that farm will email to once the job was done/failed.}
-}
-\value{
-a shell file.
-}
-\description{
-'Farm' is a computer cluster running slurm system.
-Note, 'bigmem' mem=8000/cpu, "hi/med/low' mem=25000/cpu, "serial" mem=1500/cpu.
-}
-\examples{
-
-
-=======
 \item{shid}{Relative or absolute path and file name of your shell code, i.e. CL_test.sh.}
 
 \item{shcode}{The commands inside your sh file.}
@@ -64,7 +36,8 @@ for(i in 1:10){
 }
 shcode <- paste("module load bismark/0.14.3", "sh slurm-script/run_$SLURM_ARRAY_TASK_ID.sh", sep="\\n")
 
+set_array_job(shid="slurm-script/run.sh", shcode=shcode,
+              arrayjobs="1-10", wd=NULL, jobid="myjob", email=NULL)
 
->>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 }
 
