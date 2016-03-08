@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #' Set up array job on farm
 #'
 #' 'Farm' is a computer cluster running slurm system.
@@ -15,6 +16,25 @@
 #' set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
 #' shcode="sh largedata/myscript.sh", arrayjobs="1-700",wd=NULL, jobid="myjob", email=NULL)
 #'
+=======
+#' \code{Set up array job on farm}
+#'
+#' Farm is a computer cluster running slurm system.
+#' Note, bigmem mem=8000 per cpu, hi med low mem=25000 per cpu, serial mem=1500 per cpu.
+#'
+#' @param shid Relative or absolute path and file name of your shell code, i.e. CL_test.sh.
+#' @param shcode The commands inside your sh file.
+#' @param arrayjobs A character specify the number of array you try to run, i.e. 1-100.
+#' @param wd Working directory, default=NULL. It will use your current directory.
+#' @param jobid The job name show up in your sq NAME column.
+#' @param email Your email address that farm will email to once the job was done or failed.
+#'
+#' @return return a shell file.
+#'
+#' @examples
+#'
+#' @export
+
 set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          arrayjobs="1-700",
@@ -56,6 +76,7 @@ set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
     #### attach some sh scripts
     cat(shcode, file=shid, sep="\n", append=TRUE)
     message(paste("###>>> In this path: cd ", wd, sep=""), "\n",
+<<<<<<< HEAD
             paste("###>>> RUN: sbatch -p bigmemh", shid),
             "")
 
@@ -76,6 +97,28 @@ set_array_job <- function(shid="largedata/GenSel/CL_test.sh",
 #' @examples
 #'
 #'
+=======
+            paste("###>>> RUN: sbatch -p bigmemh", shid))
+
+}
+
+#' \code{Set up one farm job}
+#'
+#' Farm is a computer cluster running slurm system.
+#' Note, bigmem mem=8000/cpu, hi/med/low mem=25000/cpu, serial mem=1500/cpu.
+#'
+#' @param slurmsh Relative or absolute path and file name of your shell code, i.e. largedata/GenSel/CL_test.sh.
+#' @param shcode The commands inside your sh file.
+#' @param wd Working directory, default=NULL. It will use your current directory.
+#' @param jobid The job name show up in your sq NAME column.
+#' @param email Your email address that farm will email to once the job was done/failed.
+#'
+#' @return a shell file.
+#'
+#' @examples
+#'
+#' @export
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          wd=NULL, jobid="myjob", email=NULL){
@@ -114,7 +157,11 @@ set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
   cat(shcode, file=slurmsh, sep="\n", append=TRUE)
 
   message(paste("###>>> In this path: cd ", wd, sep=""), "\n",
+<<<<<<< HEAD
           paste("###>>> RUN: sbatch -p bigmemh --ntasks=1", slurmsh),
           "")
+=======
+          paste("###>>> RUN: sbatch -p bigmemh --ntasks=1", slurmsh))
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 
 }

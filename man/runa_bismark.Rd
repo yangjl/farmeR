@@ -2,7 +2,11 @@
 % Please edit documentation in R/run_bismark.R
 \name{runa_bismark}
 \alias{runa_bismark}
+<<<<<<< HEAD
 \title{Run array Bismark job on farm}
+=======
+\title{\code{Run array Bismark job on farm}}
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 \usage{
 runa_bismark(input_df, genome = "/home/jolyang/dbcenter/AGP/AGPv2", cpu = 4,
   outdir = "/group/jrigrp4/BS_teo20/WGBS/BSM", arrayjobs = "1-5",
@@ -17,20 +21,31 @@ runa_bismark(input_df, genome = "/home/jolyang/dbcenter/AGP/AGPv2", cpu = 4,
 
 \item{outdir}{Folder for output.}
 
+<<<<<<< HEAD
 \item{arrayjobs}{A character specify the number of array you try to run, i.e. '1-100'.}
 
 \item{jobid}{The job name show up in your sq "NAME' column.}
+=======
+\item{arrayjobs}{A character specify the number of array you try to run, i.e. 1-100.}
+
+\item{jobid}{The job name show up in your sq NAME column.}
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 
 \item{email}{Your email address that farm will email to once the job was done/failed.}
 }
 \value{
+<<<<<<< HEAD
 a batch of shell scripts.
+=======
+return a batch of shell scripts.
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 }
 \description{
 Run bowtie2/2.2.5
 Run bismark/0.14.3
 }
 \details{
+<<<<<<< HEAD
 Allow one mismatch 'n 1'
 
 see more detail about Bismark:
@@ -39,5 +54,17 @@ http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf
 \examples{
 
 
+=======
+Allow one mismatch n=1
+
+see more detail about Bismark:
+\url{http://www.bioinformatics.babraham.ac.uk/projects/bismark/Bismark_User_Guide.pdf}
+}
+\examples{
+input_df <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
+runa_bismark(input_df, genome="/home/jolyang/dbcenter/AGP/AGPv2",
+cpu=4, outdir="/group/jrigrp4/BS_teo20/WGBS/BSM", arrayjobs="1-5", jobid="bs1-5",
+email=NULL)
+>>>>>>> e2dfb9d60d5ce3dc09c5a85b3d3b2193373d0989
 }
 
