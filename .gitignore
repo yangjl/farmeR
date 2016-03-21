@@ -1,4 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+vignettes/
 .Ruserdata
+slurm-log/
+slurm-script/
