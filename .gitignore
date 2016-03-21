@@ -5,3 +5,4 @@ vignettes/
 .Ruserdata
 slurm-log/
 slurm-script/
+test/

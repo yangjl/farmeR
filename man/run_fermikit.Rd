@@ -4,16 +4,13 @@
 \alias{run_fermikit}
 \title{\code{Run Fermikit job on farm}}
 \usage{
-run_fermikit(fq, kitpath = "/home/jolyang/bin/fermikit/",
-  genome = "/home/jolyang/dbcenter/AGP/AGPv2", s = "3g", t = 16,
-  l = 100, arrayjobs = "1-2", jobid = "fermi", email = NULL)
+run_fermikit(fq, kitpath = "/home/jolyang/bin/fermikit/", s = "3g",
+  t = 16, l = 100, arrayjobs = "1-2", jobid = "fermi", email = NULL)
 }
 \arguments{
 \item{fq}{An input data.frame for fastq files. Must contains fq1, fq2 and out.}
 
-\item{kitpath}{The absolute or relative path of teh fermi.kit directory that can invoke the pipeline.}
-
-\item{genome}{The full path of genome with bwa indexed reference fasta file.}
+\item{kitpath}{The absolute or relative path of the fermi.kit directory that can invoke the pipeline.}
 
 \item{s}{Approximate genome size, default=3g.}
 
@@ -26,6 +23,8 @@ run_fermikit(fq, kitpath = "/home/jolyang/bin/fermikit/",
 \item{jobid}{The job name show up in your sq NAME column.}
 
 \item{email}{Your email address that farm will email to once the job was done/failed.}
+
+\item{genome}{The full path of genome with bwa indexed reference fasta file.}
 }
 \value{
 return a batch of shell scripts.
@@ -39,7 +38,7 @@ see more detail about fermikit by Li, Heng:
 }
 \examples{
 fq <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
-run_fermikitrun_fermikit <- function(fq, kitpath="/home/jolyang/bin/fermikit/",
+run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
 genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
 jobid="fermi", email=NULL)
 

@@ -6,7 +6,7 @@
 #' \url{https://github.com/lh3/fermikit}
 #'
 #' @param fq An input data.frame for fastq files. Must contains fq1, fq2 and out.
-#' @param kitpath The absolute or relative path of teh fermi.kit directory that can invoke the pipeline.
+#' @param kitpath The absolute or relative path of the fermi.kit directory that can invoke the pipeline.
 #' @param genome The full path of genome with bwa indexed reference fasta file.
 #' @param s Approximate genome size, default=3g.
 #' @param t Number of threads, default=16.
@@ -19,14 +19,13 @@
 #'
 #' @examples
 #' fq <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
-#' run_fermikitrun_fermikit <- function(fq, kitpath="/home/jolyang/bin/fermikit/",
+#' run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
 #' genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
 #' jobid="fermi", email=NULL)
 #'
 #' @export
 run_fermikit <- function(fq,
                          kitpath="/home/jolyang/bin/fermikit/",
-                         genome="/home/jolyang/dbcenter/AGP/AGPv2",
                          s='3g', t=16, l=100,
                          arrayjobs="1-2",
                          jobid="fermi",
@@ -34,9 +33,7 @@ run_fermikit <- function(fq,
 
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
-
-
-  for(i in 1:nrow(input_df)){
+  for(i in 1:nrow(fq)){
 
     shid <- paste0("slurm-script/run_fermikit_", i, ".sh")
     #out <- gsub(".*/", "", out)
@@ -47,7 +44,7 @@ run_fermikit <- function(fq,
     #"fermi.kit/seqtk mergepe r1.fq r2.fq | fermi.kit/trimadap-mt -p4" > prefix.mak
     cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", t, " -l", l, " -p ", fq$out[i], " \\", "\n",
                   "\"", kitpath,"/seqtk mergepe ", fq$fq1[i], " ", fq$fq2[i], " | ", " \\\n",
-                  kidpath, "/trimadap-mt -p",t, "\" > ", fq$out[i])
+                  kitpath, "/trimadap-mt -p",t, "\" > ", fq$out[i])
 
     cmd2 <- paste0("make -f prefix.mak")
     cat(c(cmd1, cmd2), file=shid, sep="\n", append=FALSE)
@@ -55,7 +52,7 @@ run_fermikit <- function(fq,
 
   shcode <- paste("sh slurm-script/run_fermikit_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
 
-  set_array_job(shid="sh slurm-script/run_fermikit_array.sh",
+  set_array_job(shid="slurm-script/run_fermikit_array.sh",
                 shcode=shcode, arrayjobs=arrayjobs,
                 wd=NULL, jobid=jobid, email=email)
 }

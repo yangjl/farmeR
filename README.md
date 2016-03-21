@@ -1,4 +1,4 @@
-# maizeR
+# farmeR
 
 This is an R packages to generate pipelines for maize Genomic and Genetic analysis.
 
