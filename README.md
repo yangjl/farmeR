@@ -9,21 +9,21 @@ Install [devtools](https://github.com/hadley/devtools) first, and then use `devt
 ```R
 devtools::install_github("hadley/devtools")
 library(devtools)
-install_github("yangjl/maizeR")
-library(maizeR)
+install_github("yangjl/farmeR")
+library(farmeR)
 ```
 
 OR
 ```R
 git clone 
 library(devtools)
-load_all(maizeR)
+load_all(farmeR)
 ```
 
 List all the functions in the package.
 
 ```R
-ls(getNamespace("maizeR"), all.names=TRUE)
+ls(getNamespace("farmeR"), all.names=TRUE)
 
 ```
 
