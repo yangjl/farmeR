@@ -1,4 +1,4 @@
-#' \code{Run ASCP job on farm}
+#' \code{Run Aspera Connect to download from SRA.}
 #'
 #' Downloading SRA using 'ascp' utility or Aspera Connect.
 #'
@@ -15,9 +15,9 @@
 #' @return return a batch of shell scripts.
 #'
 #' @examples
-#' sra <- data.frame(SRR=c("SRR850328", "SRR850332",  "SRR1610959", "SRR1610960", "SRR1610961"),
-#' SRX=c( "SRR850328", "SRR850332","SRX731432","SRX731433","SRX731434"),
-#' pid=c( "B73", "Mo17",  "CML322", "Oh43", "Tx303"))
+#' sra <- data.frame(SRR=c("ERR877647", "ERR877648"),
+#' SRX=c( "ERX957210", "ERX957211"),
+#' pid=c( "1_Base1_Bbreve-sc-2188486", "P1_ECvsrS_1-sc-2201977"))
 #' run_aspera(sra, maxspeed="200m", outdir=".", arrayjobs="1-2", jobid="aspera", email=NULL)
 #'
 #' @export
