@@ -1,4 +1,4 @@
-#' \code{Run Fermikit job on farm}
+#' \code{Run BWA-mem job on farm}
 #'
 #' Fermikit is a de novo assembly based variant calling pipeline for Illumina short reads
 #'
@@ -24,7 +24,7 @@
 #' jobid="fermi", email=NULL)
 #'
 #' @export
-run_fermikit <- function(fq,
+run_bwamem <- function(fq,
                          kitpath="/home/jolyang/bin/fermikit",
                          s='3g', t=16, l=100,
                          arrayjobs="1-2",
@@ -35,24 +35,23 @@ run_fermikit <- function(fq,
   dir.create("slurm-script", showWarnings = FALSE)
   for(i in 1:nrow(fq)){
 
-    shid <- paste0("slurm-script/run_fermikit_", i, ".sh")
-    #out <- gsub(".*/", "", out)
-    #outfile <- paste0(outdir, "/", out)
+    shid <- paste0("slurm-script/run_bwamem_", i, ".sh")
 
-    #If you have multiple FASTQ files and want to trim adapters before assembly:
-    #fermi.kit/fermi2.pl unitig -s3g -t16 -l100 -p prefix \
-    #"fermi.kit/seqtk mergepe r1.fq r2.fq | fermi.kit/trimadap-mt -p4" > prefix.mak
-    cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", t, " -l", l, " -p ", fq$out[i], " \\", "\n",
-                  "\"", kitpath,"/seqtk mergepe ", fq$fq1[i], " ", fq$fq2[i], " | ", " \\\n",
-                  kitpath, "/trimadap-mt -p",t, "\" > ", fq$out[i])
 
-    cmd2 <- paste0("make -f ", fq$out[i])
-    cat(c(cmd1, cmd2), file=shid, sep="\n", append=FALSE)
+    #-t INT     number of threads [1]
+    #-M         mark shorter split hits as secondary (for Picard/GATK compatibility)
+    #-T INT     minimum score to output [30]
+    # genome ftp://ftp.ensemblgenomes.org/pub/plants/release-22/fasta/zea_mays/dna/README
+    cmd1 <- paste0("bwa mem -t 18 -T 5 ../Zea_mays.AGPv2.14.dna/Zea_mays.AGPv2.14.dna.toplevel.fa
+                   ../fastq/$fastq1 ../fastq/$fastq2 | samtools view -bSh - >$outfile.bam")
+    #cmd2 <- paste0("samtools index sorted.$output.bam")
+    #cmd3 <- paste0("samtools sort -m 10G -@ 2 $bam sorted.$output)
+    cat(cmd1, file=shid, sep="\n", append=FALSE)
   }
 
-  shcode <- paste("sh slurm-script/run_fermikit_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
+  shcode <- paste("sh slurm-script/run_bwamem_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
 
-  set_array_job(shid="slurm-script/run_fermikit_array.sh",
+  set_array_job(shid="slurm-script/run_bwamem_array.sh",
                 shcode=shcode, arrayjobs=arrayjobs,
                 wd=NULL, jobid=jobid, email=email)
 }
