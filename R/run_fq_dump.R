@@ -25,13 +25,14 @@ run_fq_dump <- function(filepath="/group/jrigrp4/BS_teo20/WGBS",
   files <- list.files(path=filepath, pattern="sra$")
   mysh <- paste("cd", filepath)
   for(i in 1:length(files)){
-    out1 <- paste("fastq-dump --split-spot --split-3 -A", files[i])
+    out <- paste("fastq-dump --split-spot --split-3 -A", files[i])
     mysh <- c(mysh, out)
   }
   if(rmsra){
     mysh <- c(mysh, "rm *sra")
   }
   ### set up a single node job
-  set_farm_job(slurmsh=slurmsh, codesh=mysh,
+  dir.create("slurm-script", showWarnings = FALSE)
+  set_farm_job(slurmsh=slurmsh, shcode=mysh,
              wd=NULL, jobid="dump", email=email)
 }
