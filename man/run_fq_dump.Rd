@@ -2,10 +2,14 @@
 % Please edit documentation in R/run_fq_dump.R
 \name{run_fq_dump}
 \alias{run_fq_dump}
+\alias{run_fq_dump2}
 \title{\code{Run fastq-dump.}}
 \usage{
 run_fq_dump(filepath = "/group/jrigrp4/BS_teo20/WGBS",
   slurmsh = "slurm-script/dump_WGBS.sh", rmsra = TRUE, email = NULL)
+
+run_fq_dump2(filepath = "/group/jrigrp4/BS_teo20/WGBS", rmsra = TRUE,
+  gzip = TRUE, email = NULL, run = c(TRUE, "bigmemh", "8196", "1"))
 }
 \arguments{
 \item{filepath}{The absolute path of the SRA files.}
@@ -15,6 +19,11 @@ run_fq_dump(filepath = "/group/jrigrp4/BS_teo20/WGBS",
 \item{rmsra}{Remove the original SRA file after dumpping.}
 
 \item{email}{Your email address that farm will email to once the job was done/failed.}
+
+\item{gzip}{GZIP the fastq files.}
+
+\item{run}{Parameters control the array job partition.
+A vector of c(TRUE, "bigmemh", "8196", "1"): 1) run or not, 2) -p partition name, 3) --mem, adn 4) --ntasks.}
 }
 \value{
 return a single shell script to run.
@@ -27,9 +36,12 @@ see more detail about SRA with Aspera downloading:
 \url{http://www.ncbi.nlm.nih.gov/books/NBK158899/#SRA_download.downloading_sra_data_using}
 }
 \examples{
+## run a single node job:
 run_fq_dump(filepath="/group/jrigrp4/BS_teo20/WGBS",
-slurmsh="slurm-script/dump_WGBS.sh",
-rmsra=TRUE, email=NULL)
+            slurmsh="slurm-script/dump_WGBS.sh", rmsra=TRUE, email=NULL)
+
+##  run array job:
+run_fq_dump2(filepath="test", rmsra=TRUE, gzip=TRUE, email=NULL, run=c(TRUE, "bigmemh", "8196", "1"))
 
 }
 

@@ -1,6 +1,9 @@
 ---
-title: "Genomic and Genetic Pipelines using maizeR"
-output: pdf_document
+title: "Genomic and Genetic Pipelines using farmeR"
+output: 
+  pdf_document: 
+    number_sections: yes
+    toc: yes
 ---
 
 
@@ -33,12 +36,22 @@ bismark_methylation_extractor -s --comprehensive test_dataset.fastq_bismark.sam
 
 
 
+## SNP and INDEL calling using GATK
+
+1. [quartz](https://github.com/yunwilliamyu/quartz) for de novo quality score compression of fastq files.
+2. 
+
+
+## SNP, INDEL and SV calling using fermikit
+[fermikit](https://github.com/lh3/fermikit) is a de novo assembly based variant calling pipeline for Illumina short reads 
 
 
 
 
+## Commonly use one liner
 
-
+1. How To Merge Two Fastq.Gz Files?
+cat file1.gz file2.gz file3.gz > allfiles.gz
 
 
 Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
