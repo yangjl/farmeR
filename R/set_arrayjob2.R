@@ -23,7 +23,8 @@
 #' shcode <- paste("module load bismark/0.14.3", "sh slurm-script/run_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
 #'
 #' set_array_job(shid="slurm-script/run.sh", shcode=shcode,
-#'               arrayjobs="1-10", wd=NULL, jobid="myjob", email=NULL)
+#'               arrayjobs="1-10", wd=NULL, jobid="myjob", email=NULL,
+#'               run = c(TRUE, "bigmemh", "8196", "1"))
 #'
 #' @export
 set_array_job2 <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh largedata/myscript.sh",
