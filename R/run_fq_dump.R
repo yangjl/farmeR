@@ -74,7 +74,7 @@ run_fq_dump2 <- function(filepath="/group/jrigrp4/BS_teo20/WGBS",
 
   set_array_job(shid=myshid,
                 shcode=shcode, arrayjobs=paste("1", length(files), sep="-"),
-                wd=NULL, jobid=jobid, email=email)
+                wd=NULL, jobid="dump", email=email)
 
   if(run[1]){
     runcode <- paste0("sbatch -p ", run[2], " --mem ", run[3], " --ntasks=", run[4], " ", myshid)
