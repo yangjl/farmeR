@@ -23,7 +23,7 @@ run_fq_dump <- function(filepath="/group/jrigrp4/BS_teo20/WGBS",
                         rmsra=TRUE, email=NULL){
 
   files <- list.files(path=filepath, pattern="sra$")
-  mysh <- paste("cd", pwd)
+  mysh <- paste("cd", filepath)
   for(i in 1:length(files)){
     out1 <- paste("fastq-dump --split-spot --split-3 -A", files[i])
     mysh <- c(mysh, out)
