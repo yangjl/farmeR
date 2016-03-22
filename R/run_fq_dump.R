@@ -1,39 +1,37 @@
-#' \code{Run Aspera Connect to download from SRA.}
+#' \code{Run fastq-dump.}
 #'
-#' Downloading SRA using 'ascp' utility or Aspera Connect.
+#' fastq-dump to dump SRA file.
 #'
 #' see more detail about SRA with Aspera downloading:
 #' \url{http://www.ncbi.nlm.nih.gov/books/NBK158899/#SRA_download.downloading_sra_data_using}
 #'
-#' @param sra An input data.frame for SRA ids. Must contains column: SRR.
-#' @param maxspeed The max speed for downloading.
-#' @param outdir The output directory.
-#' @param arrayjobs A character specify the number of array you try to run, i.e. 1-100.
-#' @param jobid The job name show up in your sq NAME column.
+#' @param filepath The absolute path of the SRA files.
+#' @param slurmsh File name of the output shell command.
+#' @param rmsra Remove the original SRA file after dumpping.
 #' @param email Your email address that farm will email to once the job was done/failed.
 #'
-#' @return return a batch of shell scripts.
+#' @return return a single shell script to run.
 #'
 #' @examples
-#' sra <- data.frame(SRR=c("ERR877647", "ERR877648"),
-#' SRX=c( "ERX957210", "ERX957211"),
-#' pid=c( "1_Base1_Bbreve-sc-2188486", "P1_ECvsrS_1-sc-2201977"))
-#' run_aspera(sra, maxspeed="200m", outdir=".", arrayjobs="1-2", jobid="aspera", email=NULL)
+#' run_fq_dump(filepath="/group/jrigrp4/BS_teo20/WGBS",
+#' slurmsh="slurm-script/dump_WGBS.sh",
+#' rmsra=TRUE, email=NULL)
 #'
 #' @export
-run_fq_dump <- function(pwd="/group/jrigrp4/BS_teo20/WGBS",
+run_fq_dump <- function(filepath="/group/jrigrp4/BS_teo20/WGBS",
                         slurmsh="slurm-script/dump_WGBS.sh",
-                        email=NULL){
+                        rmsra=TRUE, email=NULL){
 
-  files <- list.files(path=pwd, pattern="sra$")
+  files <- list.files(path=filepath, pattern="sra$")
   mysh <- paste("cd", pwd)
   for(i in 1:length(files)){
     out1 <- paste("fastq-dump --split-spot --split-3 -A", files[i])
     mysh <- c(mysh, out)
   }
-
-
-  set_farm_job(slurmsh=slurmsh,
-             codesh=mysh,
+  if(rmsra){
+    mysh <- c(mysh, "rm *sra")
+  }
+  ### set up a single node job
+  set_farm_job(slurmsh=slurmsh, codesh=mysh,
              wd=NULL, jobid="dump", email=email)
 }
