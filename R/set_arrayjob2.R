@@ -9,8 +9,8 @@
 #' @param wd Working directory, default=NULL. It will use your current directory.
 #' @param jobid The job name show up in your sq NAME column.
 #' @param email Your email address that farm will email to once the job was done or failed.
-#' @param run  Parameters control the array job partition.
-#' A vector of c(TRUE, "bigmemh", "8196", "1"): 1) run or not, 2) -p partition name, 3) --mem, adn 4) --ntasks.
+#' @param runinfo  Parameters specify the array job partition information.
+#' A vector of c(TRUE, "bigmemh", "1"): 1) run or not, 2) -p partition name, and 3) --cpus.
 #'
 #' @return return a shell file.
 #'
@@ -27,9 +27,9 @@
 #'               run = c(TRUE, "bigmemh", "8196", "1"))
 #'
 #' @export
-set_array_job2 <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh largedata/myscript.sh",
+set_array_job <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh largedata/myscript.sh",
                            arrayjobs="1-700", wd=NULL, jobid="myjob", email=NULL,
-                           run=c(TRUE, "bigmemh", "8196", "1")){
+                           runinfo=c(TRUE, "bigmemh", "1")){
 
     #message(sprintf("###>>> cp from Introgression, tailored for pvpDiallel"))
     ##### setup working directory
@@ -63,11 +63,11 @@ set_array_job2 <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh larged
         file=shid, sep="\n", append=FALSE);
 
     #### the sbatch code
-    runcode <- paste0("sbatch -p ", run[2], " --mem ", run[3], " --ntasks=", run[4], " ", shid)
+    runinfo <- get_runinfo(runinfo)
+    runcode <- paste0("sbatch -p ", run[2], " --mem ", run[4], " --ntasks=", run[3], " ", shid)
 
     #### attach some sh scripts
     cat(shcode, file=shid, sep="\n", append=TRUE)
-
     if(run[1]){
       message(runcode)
       system(runcode)
@@ -75,7 +75,24 @@ set_array_job2 <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh larged
       message(paste("###>>> In this path: cd ", wd, sep=""), "\n",
               paste("###>>> RUN:", runcode))
     }
+}
 
+#' @rdname set_array_job
+#' @export
+get_runinfo <- function(runinfo){
+  ### determine memory based on partition
+  run <- runinfo
+  if(length(grep("med|hi|low", run[2])) > 0){
+    mem <- 2600*as.numeric(run[3])
+    runinfo <- c(run, mem)
+  }else if(length(grep("bigmem", run[2])) > 0){
+    mem <- 8196*as.numeric(run[3])
+    runinfo <- c(run, mem)
+  }else if(length(grep("serial", run[2])) > 0){
+    mem <- 1500*as.numeric(run[3])
+    runinfo <- c(run, mem)
+  }
+  return(runinfo)
 }
 
 #' \code{Set up one farm job}
@@ -103,7 +120,7 @@ set_array_job2 <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh larged
 #' shcode = cmd, wd = NULL, jobid = "snpconvert", email=NULL)
 #'
 #' @export
-set_farm_job2 <- function(slurmsh="largedata/GenSel/CL_test.sh",
+set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          wd=NULL, jobid="myjob", email=NULL,
                          run=c(TRUE, "bigmemh", "8196", "1")){
@@ -152,3 +169,5 @@ set_farm_job2 <- function(slurmsh="largedata/GenSel/CL_test.sh",
             paste("###>>> RUN:", runcode))
   }
 }
+
+
