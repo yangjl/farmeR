@@ -27,9 +27,10 @@
 #'               run = c(TRUE, "bigmemh", "8196", "1"))
 #'
 #' @export
-set_array_job <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh largedata/myscript.sh",
-                           arrayjobs="1-700", wd=NULL, jobid="myjob", email=NULL,
-                           runinfo=c(TRUE, "bigmemh", "1")){
+set_array_job <- function(
+  shid="largedata/GenSel/CL_test.sh", shcode="sh largedata/myscript.sh",
+  arrayjobs="1-700", wd=NULL, jobid="myjob", email=NULL,
+  runinfo=c(TRUE, "bigmemh", "1")  ){
 
     #message(sprintf("###>>> cp from Introgression, tailored for pvpDiallel"))
     ##### setup working directory
@@ -64,11 +65,11 @@ set_array_job <- function(shid="largedata/GenSel/CL_test.sh", shcode="sh largeda
 
     #### the sbatch code
     runinfo <- get_runinfo(runinfo)
-    runcode <- paste0("sbatch -p ", run[2], " --mem ", run[4], " --ntasks=", run[3], " ", shid)
+    runcode <- paste0("sbatch -p ", runinfo[2], " --mem ", runinfo[4], " --ntasks=", runinfo[3], " ", shid)
 
     #### attach some sh scripts
     cat(shcode, file=shid, sep="\n", append=TRUE)
-    if(run[1]){
+    if(runinfo[1]){
       message(runcode)
       system(runcode)
     }else{

@@ -10,11 +10,12 @@
 #' picard-tools-2.1.1
 #' GenomeAnalysisTK-3.5/
 #'
-#' @param inputdf An input data.frame for fastq files. Must contains fq1, fq2 and out.
-#' @param ref.fa The absolute or relative path of the fermi.kit directory that can invoke the pipeline.
-#' @param gatkpwd The full path of genome with bwa indexed reference fasta file.
-#' @param picardpwd Approximate genome size, default=3g.
-#' @param bwa Number of threads, default=16.
+#' @param inputdf An input data.frame for fastq files. Must contains fq1, fq2, out (and/or bam).
+#' If inputdf contained bam, bwa alignment will be scaped.
+#' @param ref.fa The full path of genome with bwa indexed reference fasta file.
+#' @param gatkpwd The absolute path of GenomeAnalysisTK.jar.
+#' @param picardpwd The absolute path of picard.jar.
+#'
 #' @param markDup Primary read length, default=100.
 #' @param realignInDels A character specify the number of array you try to run, i.e. 1-100.
 #' @param inputbam The job name show up in your sq NAME column.
@@ -28,41 +29,39 @@
 #' @return return a batch of shell scripts.
 #'
 #' @examples
-#' fq <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
-#'                  group="g1", sample="s1",PL="illumina", LB="lib1", PU="unit1")
-#' run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
-#' genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
-#' jobid="fermi", email=NULL)
+#' inputdf <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
+#'                  group="g1", sample="s1", PL="illumina", LB="lib1", PU="unit1")
+#'
+#' run_GATK(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+#'          gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+#'          picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
+#'          markDup=TRUE, realignInDels=TRUE, indels.vcf="indels.vcf",
+#'          recalBases=TRUE, dbsnp.vcf="dbsnp.vcf", email=NULL,
+#'          runinfo = c(FALSE, "bigmemh", 4))
 #'
 #' @export
 run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
                      gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
                      picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
-                     bwa=FALSE, markDup=TRUE,
-                     realignInDels=FALSE, inputbam=FALSE, indels.vcf="indels.vcf",
+                     markDup=TRUE,
+                     realignInDels=FALSE, indels.vcf="indels.vcf",
                      recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
                      email=NULL,
                      runinfo = c(TRUE, "bigmemh", 4)){
 
   fq <- inputdf
+  if(sum(names(fq) %in% "sam") > 0){
+    inputbam <- TRUE; bwa <- FALSE
+  }else{
+    inputbam <- FALSE; bwa <- TRUE}
   ### determine memory based on partition
-  if(length(grep("med|hi|low", run[2])) > 0){
-    mem <- 2600*as.numeric(run[3])
-    run <- c(run, mem)
-  }else if(length(grep("bigmem", run[2])) > 0){
-    mem <- 8196*as.numeric(run[3])
-    run <- c(run, mem)
-  }else if(length(grep("serial", run[2])) > 0){
-    mem <- 1500*as.numeric(run[3])
-    run <- c(run, mem)
-  }
+  run <- get_runinfo(runinfo)
 
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
   for(i in 1:nrow(fq)){
 
     shid <- paste0("slurm-script/run_gatk_", i, ".sh")
-
     ### header of the shell code
     cat("### GATK pipeline created by farmeR",
         paste("###", format(Sys.time(), "%a %b %d %X %Y")),
@@ -70,24 +69,16 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
         file=shid, sep="\n", append=FALSE)
 
     ### alignment and sorting using picard-tools
-    if(bwa){
-      set_bwa(fq, run, picardpwd, shid)
-    }
+    if(bwa) set_bwa(fq, run, picardpwd, ref.fa, shid)
 
     #### mark duplicates
-    if(markDup){
-      set_markDup(fq, picardpwd, run, shid)
-    }
+    if(markDup) set_markDup(fq, picardpwd, run, shid)
 
     ### Perform local realignment around indels
-    if(realignInDels){
-      set_realignInDels(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, shid)
-    }
+    if(realignInDels) set_realignInDels(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Recalibrate Bases
-    if(recalBases){
-      set_recalBases(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
-    }
+    if(recalBases) set_recalBases(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Variant Discovery using HaplotypeCaller
     vcaller(fq, inputbam, ref.fa, gatkpwd, run, shid)
@@ -95,14 +86,14 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
 
   shcode <- paste("sh slurm-script/run_gatk_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
   set_array_job(shid="slurm-script/run_gatk_array.sh",
-                shcode=shcode, arrayjobs="1",
-                wd=NULL, jobid="gatk", email=NULL)
+                shcode=shcode, arrayjobs=paste("1", nrow(inputdf), sep="-"),
+                wd=NULL, jobid="gatk", email=email, runinfo=runinfo)
   #  sbatch -p bigmemh --mem 32784 --ntasks=4  slurm-script/run_gatk_array.sh
 }
 
 
 ##########
-set_bwa <- function(fq, run, picardpwd, shid){
+set_bwa <- function(fq, run, picardpwd, ref.fa, shid){
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
     rg <- paste0("\'@RG\\tID:", fq$group[i], "\\tSM:", fq$sample[i],
@@ -112,7 +103,7 @@ set_bwa <- function(fq, run, picardpwd, shid){
     sorted_bam <- paste0(fq$out[i], ".sorted.bam")
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
-    cat(paste("###Generate a SAM file containing aligned reads"),
+    cat(paste("### Generate a SAM file containing aligned reads"),
         paste("bwa mem -M -R", rg, " -t", run[3], "-p", ref.fa, fq$fq1[i], fq$fq2[i], ">", aligned_sam),
         paste(""),
 
@@ -125,7 +116,7 @@ set_bwa <- function(fq, run, picardpwd, shid){
         paste("rm", aligned_sam),
         paste(""),
         file=shid, sep="\n", append=TRUE)
-    message("###>>> set up BWA mem and sorting to bam using picard-tools!")
+    message("###>>> set up BWA mem and then sort to bam using picard-tools!")
 }
 
 ##########
@@ -140,10 +131,12 @@ set_markDup <- function(fq, picardpwd, run, shid){
       paste0("INPUT=", sorted_bam, " \\"),
       paste0("OUTPUT=", dedup_bam, " \\"),
       paste0("METRICS_FILE=", metrics),
+      paste("rm", sorted_bam),
       paste0(""),
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
              "-jar $HOME/bin/picard-tools-2.1.1/picard.jar BuildBamIndex \\"),
       paste0("INPUT=", dedup_bam),
+      "",
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Mark Duplicates using picard-tools!")
 }
