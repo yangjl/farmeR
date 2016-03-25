@@ -21,15 +21,16 @@
 #' @param gatkpwd The absolute path of GenomeAnalysisTK.jar.
 #' @param picardpwd The absolute path of picard.jar.
 #'
-#' @param markDup Primary read length, default=100.
-#' @param realignInDels A character specify the number of array you try to run, i.e. 1-100.
-#' @param inputbam The job name show up in your sq NAME column.
-#' @param indels.vcf The job name show up in your sq NAME column.
-#' @param recalBases The job name show up in your sq NAME column.
-#' @param dbsnp.vcf The job name show up in your sq NAME column.
-#' @param runinfo It will pass to \code{set_array_job}.
-#'
-#' @param email Your email address that farm will email to once the job was done/failed.
+#' @param markDup Mark Duplicates, default=TRUE.
+#' @param realignInDels Realign Indels, default=FALSE. IF TRUE, a golden indel.vcf file should be provided.
+#' @param indels.vcf The full path of indels.vcf.
+#' @param recalBases Recalibrate Bases, default=FALSE. IF TRUE, a golden snps.vcf file should be provided.
+#' @param dbsnp.vcf The full path of dbsnp.vcf.
+#' @param email Your email address that farm will email to once the jobs were done/failed.
+#' @param runinfo Parameters specify the array job partition information.
+#' A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
+#' 2) -p partition name, default=bigmemh and 3) --cpus, default=1.
+#' It will pass to \code{set_array_job}.
 #'
 #' @return return a batch of shell scripts.
 #'
@@ -37,32 +38,31 @@
 #' inputdf <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
 #'                  group="g1", sample="s1", PL="illumina", LB="lib1", PU="unit1")
 #'
-#' run_GATK(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+#' run_GATK(inputdf,
+#'          ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
 #'          gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
 #'          picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
-#'          markDup=TRUE, realignInDels=TRUE, indels.vcf="indels.vcf",
-#'          recalBases=TRUE, dbsnp.vcf="dbsnp.vcf", email=NULL,
-#'          runinfo = c(FALSE, "bigmemh", 4))
+#'          markDup=TRUE,
+#'          realignInDels=FALSE, indels.vcf="indels.vcf",
+#'          recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
+#'          email=NULL, runinfo = c(FALSE, "bigmemh", 1))
 #'
 #' @export
-run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+run_GATK <- function(inputdf,
+                     ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
                      gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
                      picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
                      markDup=TRUE,
                      realignInDels=FALSE, indels.vcf="indels.vcf",
                      recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
-                     email=NULL,
-                     runinfo = c(TRUE, "bigmemh", 4)){
+                     email=NULL, runinfo = c(FALSE, "bigmemh", 1)){
 
+  ##### prepare parameters:
   fq <- inputdf
-  if(sum(names(fq) %in% "sam") > 0){
-    inputbam <- TRUE; bwa <- FALSE
-  }else{
-    inputbam <- FALSE; bwa <- TRUE}
   ### determine memory based on partition
   run <- get_runinfo(runinfo)
 
-  # create dir if not exist
+  #### create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
   for(i in 1:nrow(fq)){
 
@@ -73,17 +73,21 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
         paste(""),
         file=shid, sep="\n", append=FALSE)
 
-    ### alignment and sorting using picard-tools
-    if(bwa) set_bwa(fq, run, picardpwd, i, ref.fa, shid)
+    if(sum(names(fq) %in% "bam") > 0){
+      inputbam <- fq$bam[i]
+    }else{
+      ### alignment and sorting using picard-tools
+      inputbam <- set_bwa(fq, run, picardpwd, i, ref.fa, shid)
+    }
 
     #### mark duplicates
-    if(markDup) set_markDup(fq, picardpwd, i, run, shid)
+    if(markDup) inputbam <- set_markDup(fq, picardpwd, inputbam, i, run, shid)
 
     ### Perform local realignment around indels
-    if(realignInDels) set_realignInDels(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid)
+    if(realignInDels) inputbam <- set_realignInDels(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Recalibrate Bases
-    if(recalBases) set_recalBases(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
+    if(recalBases) inputbam <- set_recalBases(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Variant Discovery using HaplotypeCaller
     vcaller(fq, inputbam, i, ref.fa, gatkpwd, run, shid)
@@ -122,13 +126,14 @@ set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
         paste(""),
         file=shid, sep="\n", append=TRUE)
     message("###>>> set up BWA mem and then sort to bam using picard-tools!")
+    return(sorted_bam)
 }
 
 ##########
-set_markDup <- function(fq, picardpwd, i, run, shid){
+set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
   ### http://broadinstitute.github.io/picard/
-  sorted_bam <- paste0(fq$out[i], ".sorted.bam")
-  dedup_bam <- paste0(fq$out[i], ".dedup.bam")
+  sorted_bam <- inputbam
+  dedup_bam <- gsub("bam$", "dedup.bam", sorted_bam)
   metrics <- paste0(fq$out[i], "_metrics.txt")
 
   cat(paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
@@ -144,6 +149,7 @@ set_markDup <- function(fq, picardpwd, i, run, shid){
       "",
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Mark Duplicates using picard-tools!")
+  return(dedup_bam)
 }
 
 ##########
@@ -151,19 +157,14 @@ set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run,
   dir.create("$HOME/tmp", showWarnings = FALSE)
 
   ### input and output files
-  if(inputbam){
-    bam <- fq$bam[i]
-  }else{
-    bam <- paste0(fq$out[i], ".dedup.bam")
-  }
-  realigned_bam <- paste0(fq$out[i], ".indelrealigned.bam")
+  realigned_bam <- gsub("bam", "indelrealigned.bam", inputbam)
   intervals <- paste0(fq$out[i], ".forIndelRealigner.intervals")
 
   cat("### Define intervals to target for local realignment",
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T RealignerTargetCreator \\"),
       paste0("-R ", ref.fa, " \\"),
-      paste0("-I ", bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("--known ", indels.vcf, " \\"),
       paste0("-o ", intervals),
       paste(""),
@@ -173,7 +174,7 @@ set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run,
       paste0("### link: https://www.broadinstitute.org/gatk/guide/article?id=2800"),
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g -Djava.io.tmpdir=$HOME/tmp \\"),
       paste0("-jar ", gatkpwd, " \\"),
-      paste0("-I ", bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-T IndelRealigner \\"),
       paste0("-targetIntervals ", intervals, " \\"),
@@ -184,6 +185,7 @@ set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run,
       paste(""),
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Realign InDels using GATK!")
+  return(realigned_bam)
 
 }
 
@@ -191,15 +193,10 @@ set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run,
 set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid){
 
   ### input and output files
-  if(inputbam){
-    realigned_bam <- fq$bam[i]
-  }else{
-    realigned_bam <- paste0(fq$out[i], ".indelrealigned.bam")
-  }
   recal_table <- paste0(fq$out[i], ".recal_data.table")
   post_recal_table <- paste0(fq$out[i], ".post_recal_data.table")
   plotpdf <- paste0(fq$out[i], ".recalibration_plots.pdf")
-  recal_reads.bam <- paste0(fq$out[i], ".recal_reads.bam")
+  recal_bam <- gsub("bam$", "recal.bam", inputbam)
 
   #1. Analyze patterns of covariation in the sequence dataset
   cat("### Recalibrate base quality scores = run BQSR",
@@ -207,7 +204,7 @@ set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkp
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T BaseRecalibrator \\"),
       paste0("-R ", ref.fa, "\\"),
-      paste0("-I ", realigned_bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("-knownSites ", dbsnp.vcf, " \\"),
       paste0("-knownSites ", indels.vcf, " \\"),
       paste0("-o ", recal_table),
@@ -218,7 +215,7 @@ set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkp
   cat(paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T BaseRecalibrator \\"),
       paste0("-R ", ref.fa, " \\"),
-      paste0("-I ", realigned_bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("-knownSites ", dbsnp.vcf, " \\"),
       paste0("-knownSites ", indels.vcf, " \\"),
       paste0("-BQSR ", recal_table, " \\"),
@@ -240,30 +237,24 @@ set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkp
   cat(paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T PrintReads \\"),
       paste0("-R ", ref.fa, " \\"),
-      paste0("-I ", realigned_bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("-BQSR ", recal_table, " \\"),
-      paste0("-o ", recal_reads.bam),
+      paste0("-o ", recal_bam),
       "",
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Recalibrate Bases using GATK!")
-
+  return(recal_bam)
 }
-
 
 vcaller <- function(fq, inputbam, i, ref.fa, gatkpwd, run, shid){
   ### input and output files
-  if(inputbam){
-    recal_bam <- fq$bam[i]
-  }else{
-    recal_bam <- paste0(fq$out[i], ".recal_reads.bam")
-  }
   raw_variants.vcf <- paste0(fq$out[i], ".raw_variants.vcf")
 
   cat("### Call variants in your sequence data",
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T HaplotypeCaller \\"),
       paste0("-R ", ref.fa, " \\"),
-      paste0("-I ", recal_bam, " \\"),
+      paste0("-I ", inputbam, " \\"),
       paste0("--genotyping_mode DISCOVERY \\"),
       paste0("-stand_emit_conf 10 \\"),
       paste0("-stand_call_conf 30 \\"),

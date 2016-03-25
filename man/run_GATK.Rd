@@ -9,7 +9,7 @@ run_GATK(inputdf,
   gatkpwd = "$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
   picardpwd = "$HOME/bin/picard-tools-2.1.1/picard.jar", markDup = TRUE,
   realignInDels = FALSE, indels.vcf = "indels.vcf", recalBases = FALSE,
-  dbsnp.vcf = "dbsnp.vcf", email = NULL, runinfo = c(TRUE, "bigmemh", 4))
+  dbsnp.vcf = "dbsnp.vcf", email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
 \item{inputdf}{An input data.frame for fastq files. Must contains fq1, fq2, out (and/or bam).
@@ -21,21 +21,22 @@ If inputdf contained bam, bwa alignment will be scaped.}
 
 \item{picardpwd}{The absolute path of picard.jar.}
 
-\item{markDup}{Primary read length, default=100.}
+\item{markDup}{Mark Duplicates, default=TRUE.}
 
-\item{realignInDels}{A character specify the number of array you try to run, i.e. 1-100.}
+\item{realignInDels}{Realign Indels, default=FALSE. IF TRUE, a golden indel.vcf file should be provided.}
 
-\item{indels.vcf}{The job name show up in your sq NAME column.}
+\item{indels.vcf}{The full path of indels.vcf.}
 
-\item{recalBases}{The job name show up in your sq NAME column.}
+\item{recalBases}{Recalibrate Bases, default=FALSE. IF TRUE, a golden snps.vcf file should be provided.}
 
-\item{dbsnp.vcf}{The job name show up in your sq NAME column.}
+\item{dbsnp.vcf}{The full path of dbsnp.vcf.}
 
-\item{email}{Your email address that farm will email to once the job was done/failed.}
+\item{email}{Your email address that farm will email to once the jobs were done/failed.}
 
-\item{runinfo}{It will pass to \code{set_array_job}.}
-
-\item{inputbam}{The job name show up in your sq NAME column.}
+\item{runinfo}{Parameters specify the array job partition information.
+A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
+2) -p partition name, default=bigmemh and 3) --cpus, default=1.
+It will pass to \code{set_array_job}.}
 }
 \value{
 return a batch of shell scripts.
@@ -47,6 +48,11 @@ GATK Best Practices: recommended workflows for variant discovery analysis.
 see more detail about GATK:
 \url{https://www.broadinstitute.org/gatk/guide/bp_step.php?p=1}
 
+idxing:
+bwa index Zea_mays.AGPv2.14.dna.toplevel.fa
+
+module load java/1.8
+
 local programs:
 bwa Version: 0.7.5a-r405
 picard-tools-2.1.1
@@ -56,12 +62,14 @@ GenomeAnalysisTK-3.5/
 inputdf <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
                  group="g1", sample="s1", PL="illumina", LB="lib1", PU="unit1")
 
-run_GATK(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+run_GATK(inputdf,
+         ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
          gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
          picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
-         markDup=TRUE, realignInDels=TRUE, indels.vcf="indels.vcf",
-         recalBases=TRUE, dbsnp.vcf="dbsnp.vcf", email=NULL,
-         runinfo = c(FALSE, "bigmemh", 4))
+         markDup=TRUE,
+         realignInDels=FALSE, indels.vcf="indels.vcf",
+         recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
+         email=NULL, runinfo = c(FALSE, "bigmemh", 1))
 
 }
 
