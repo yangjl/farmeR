@@ -74,7 +74,7 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
         file=shid, sep="\n", append=FALSE)
 
     ### alignment and sorting using picard-tools
-    if(bwa) set_bwa(fq, run, i, picardpwd, ref.fa, shid)
+    if(bwa) set_bwa(fq, run, picardpwd, i, ref.fa, shid)
 
     #### mark duplicates
     if(markDup) set_markDup(fq, picardpwd, i, run, shid)
