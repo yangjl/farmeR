@@ -89,7 +89,7 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
     vcaller(fq, inputbam, i, ref.fa, gatkpwd, run, shid)
   }
 
-  shcode <- paste("sh slurm-script/run_gatk_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
+  shcode <- paste("module load java/1.8", "sh slurm-script/run_gatk_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
   set_array_job(shid="slurm-script/run_gatk_array.sh",
                 shcode=shcode, arrayjobs=paste("1", nrow(inputdf), sep="-"),
                 wd=NULL, jobid="gatk", email=email, runinfo=runinfo)
