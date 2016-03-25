@@ -42,6 +42,16 @@ bismark_methylation_extractor -s --comprehensive test_dataset.fastq_bismark.sam
 2. 
 
 
+### prepare golden SNP and InDels from HapMap2 SNPs
+```{r, eval=FALSE}
+
+system("cd ~/dbcenter/HapMap/HapMap2")
+system("")
+
+```
+
+
+
 ## SNP, INDEL and SV calling using fermikit
 [fermikit](https://github.com/lh3/fermikit) is a de novo assembly based variant calling pipeline for Illumina short reads 
 

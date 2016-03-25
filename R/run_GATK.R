@@ -5,6 +5,8 @@
 #' see more detail about GATK:
 #' \url{https://www.broadinstitute.org/gatk/guide/bp_step.php?p=1}
 #'
+#' module load java/1.8
+#'
 #' local programs:
 #' bwa Version: 0.7.5a-r405
 #' picard-tools-2.1.1

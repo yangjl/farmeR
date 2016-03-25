@@ -112,6 +112,8 @@ set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, run, shid){
 }
 
 
+#' @rdname run_GATK_JointGenotype
+#' @export
 set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid){
 
   raw_snps.vcf <- gsub("vcf$", "raw_snps.vcf", outvcf)
@@ -121,44 +123,44 @@ set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
 
   cat("### Apply hard filters to a call set",
       "### 1. Extract the SNPs from the call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs\\"),
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T SelectVariants \\"),
       paste0("-selectType SNP \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", outvcf, " \\"),
-      paste0("-o ", raw_snps.vcf, " \\"),
+      paste0("-o ", raw_snps.vcf),
       "",
       file=shid, sep="\n", append=TRUE)
 
   cat("### 2. Apply the filter to the SNP call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs\\"),
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T VariantFiltration \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", raw_snps.vcf, " \\"),
       paste0("--filterExpression ", snpflt, " \\"),
       paste0("--filterName \"my_snp_filter\" \\"),
-      paste0("-o ", filtered_snps.vcf, " \\"),
+      paste0("-o ", filtered_snps.vcf),
       "",
       file=shid, sep="\n", append=TRUE)
 
   cat("### 3. Extract the Indels from the call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs\\"),
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T SelectVariants \\"),
       paste0("-selectType INDEL \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", outvcf, " \\"),
-      paste0("-o ", raw_indels.vcf, " \\"),
+      paste0("-o ", raw_indels.vcf),
       "",
       file=shid, sep="\n", append=TRUE)
 
   cat("### 4. Apply the filter to the Indel call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs\\"),
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T VariantFiltration \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", raw_indels.vcf, " \\"),
       paste0("--filterExpression ", indelflt, " \\"),
       paste0("--filterName \"my_indel_filter\" \\"),
-      paste0("-o ", filtered_indels.vcf, " \\"),
+      paste0("-o ", filtered_indels.vcf),
       "",
       file=shid, sep="\n", append=TRUE)
 
