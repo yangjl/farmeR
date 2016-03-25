@@ -23,71 +23,56 @@
 #' @return return a batch of shell scripts.
 #'
 #' @examples
-#' fq <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
-#'                  group="g1", sample="s1",PL="illumina", LB="lib1", PU="unit1")
-#' run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
-#' genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
-#' jobid="fermi", email=NULL)
+#' gvcf <- c("1.vcf", "2.vcf")
+#' outvcf <- "out.vcf"
+#' run_GATK_JointGenotype(
+#' gvcf,
+#' outvcf,
+#' ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+#' gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+#' hardfilter=TRUE,
+#' snpflt="\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"",
+#' indelflt="\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"",
+#' email=NULL,
+#' runinfo = c(FALSE, "bigmemh", 1) )
 #'
 #' @export
 run_GATK_JointGenotype <- function(
-  inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+  gvcf,
+  outvcf,
+  ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
   gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
-
-  inputbam=FALSE, indels.vcf="indels.vcf",
-  dbsnp.vcf="dbsnp.vcf",
+  hardfilter=TRUE,
   snpflt="\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"",
   indelflt="\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"",
   email=NULL,
-  run = c(TRUE, "bigmemh", 4) ){
+  runinfo = c(FALSE, "bigmemh", 1) ){
 
-  fq <- inputdf
-
+  ### prepare parameters for running:
+  runinfo <- get_runinfo(runinfo)
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
-  for(i in 1:nrow(fq)){
+  shid <- paste0("slurm-script/run_jointgenotype_", 1, ".sh")
 
-    shid <- paste0("slurm-script/run_gatk_", i, ".sh")
+  ### header of the shell code
+  cat("### GATK pipeline created by farmeR",
+      paste("###", format(Sys.time(), "%a %b %d %X %Y")),
+      paste(""),
+      file=shid, sep="\n", append=FALSE)
 
-    ### header of the shell code
-    cat("### GATK pipeline created by farmeR",
-        paste("###", format(Sys.time(), "%a %b %d %X %Y")),
-        paste(""),
-        file=shid, sep="\n", append=FALSE)
+  set_jointgenotype(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid)
 
-    ### alignment and sorting using picard-tools
-    if(bwa){
-      set_bwa(fq, run, picardpwd, shid)
-    }
+  if(hardfilter) set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid)
 
-    #### mark duplicates
-    if(markDup){
-      set_markDup(fq, picardpwd, run, shid)
-    }
-
-    ### Perform local realignment around indels
-    if(realignInDels){
-      set_realignInDels(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, shid)
-    }
-
-    ### Recalibrate Bases
-    if(recalBases){
-      set_recalBases(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
-    }
-
-    ### Variant Discovery using HaplotypeCaller
-    vcaller(fq, inputbam, ref.fa, gatkpwd, run, shid)
-  }
-
-  shcode <- paste("sh slurm-script/run_gatk_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
-  set_array_job(shid="slurm-script/run_gatk_array.sh",
+  shcode <- paste("sh slurm-script/run_jointgenotype_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
+  set_array_job(shid="slurm-script/run_jointgenotype_array.sh",
                 shcode=shcode, arrayjobs="1",
-                wd=NULL, jobid="gatk", email=NULL)
+                wd=NULL, jobid="jgeno", email=email)
   #  sbatch -p bigmemh --mem 32784 --ntasks=4  slurm-script/run_gatk_array.sh
 }
 
 
-set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, run, shid){
+set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
 
   cat("### Performs	joint	genotyping	on	all	samples	together",
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T	GenotypeGVCFs\\"),
@@ -101,11 +86,11 @@ set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, run, shid){
   cat(paste0("–o ", outvcf),
       file=shid, sep="\n", append=TRUE)
 
-  message("###>>> set up Variants calling using GATK HaplotypeCaller!")
+  message("###>>> set up Variants calling using GATK GenotypeGVCFs!")
 }
 
 
-set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, run, shid){
+set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
   ### Recalibrate variant quality scores = run VQSR
   ## link https://www.broadinstitute.org/gatk/guide/article?id=2805
   message("###>>> set up Recalibrate variant quality scores = run GATK VQSR!")
@@ -114,7 +99,7 @@ set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, run, shid){
 
 #' @rdname run_GATK_JointGenotype
 #' @export
-set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid){
+set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid){
 
   raw_snps.vcf <- gsub("vcf$", "raw_snps.vcf", outvcf)
   filtered_snps.vcf <- gsub("vcf$", "filtered_snps.vcf", outvcf)
@@ -123,7 +108,7 @@ set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
 
   cat("### Apply hard filters to a call set",
       "### 1. Extract the SNPs from the call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T SelectVariants \\"),
       paste0("-selectType SNP \\"),
       paste0("-R ", ref.fa, " \\"),
@@ -133,7 +118,7 @@ set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
       file=shid, sep="\n", append=TRUE)
 
   cat("### 2. Apply the filter to the SNP call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T VariantFiltration \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", raw_snps.vcf, " \\"),
@@ -144,7 +129,7 @@ set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
       file=shid, sep="\n", append=TRUE)
 
   cat("### 3. Extract the Indels from the call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T SelectVariants \\"),
       paste0("-selectType INDEL \\"),
       paste0("-R ", ref.fa, " \\"),
@@ -154,7 +139,7 @@ set_hardfilter <- function(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
       file=shid, sep="\n", append=TRUE)
 
   cat("### 4. Apply the filter to the Indel call set",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T VariantFiltration \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-V ", raw_indels.vcf, " \\"),

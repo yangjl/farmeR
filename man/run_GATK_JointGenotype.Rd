@@ -5,15 +5,15 @@
 \alias{set_hardfilter}
 \title{\code{Run GATK Joint Genotype on farm}}
 \usage{
-run_GATK_JointGenotype(inputdf,
+run_GATK_JointGenotype(gvcf, outvcf,
   ref.fa = "~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
   gatkpwd = "$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
-  inputbam = FALSE, indels.vcf = "indels.vcf", dbsnp.vcf = "dbsnp.vcf",
+  hardfilter = TRUE,
   snpflt = "\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
   indelflt = "\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
-  email = NULL, run = c(TRUE, "bigmemh", 4))
+  email = NULL, runinfo = c(TRUE, "bigmemh", 4))
 
-set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, run, shid)
+set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid)
 }
 \arguments{
 \item{email}{Your email address that farm will email to once the job was done/failed.}
@@ -50,11 +50,18 @@ picard-tools-2.1.1
 GenomeAnalysisTK-3.5/
 }
 \examples{
-fq <- data.frame(fq1="fq_1.fq", fq2="f1_2.fq", out="mysample",
-                 group="g1", sample="s1",PL="illumina", LB="lib1", PU="unit1")
-run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
-genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
-jobid="fermi", email=NULL)
+gvcf <- c("1.vcf", "2.vcf")
+outvcf <- "out.vcf"
+run_GATK_JointGenotype(
+gvcf,
+outvcf,
+ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
+gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+hardfilter=TRUE,
+snpflt="\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
+indelflt="\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
+email=NULL,
+runinfo = c(TRUE, "bigmemh", 4) )
 
 }
 

@@ -8,12 +8,13 @@
 #' @param fq An input data.frame for fastq files. Must contains fq1, fq2 and out.
 #' @param kitpath The absolute or relative path of the fermi.kit directory that can invoke the pipeline.
 #' @param genome The full path of genome with bwa indexed reference fasta file.
-#' @param s Approximate genome size, default=3g.
-#' @param t Number of threads, default=16.
+#' @param s Approximate genome size, default=2.3g.
 #' @param l Primary read length, default=100.
-#' @param arrayjobs A character specify the number of array you try to run, i.e. 1-100.
-#' @param jobid The job name show up in your sq NAME column.
 #' @param email Your email address that farm will email to once the job was done/failed.
+#' @param runinfo Parameters specify the array job partition information.
+#' A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
+#' 2) -p partition name, default=bigmemh and 3) --cpus, default=1.
+#' It will pass to \code{set_array_job}.
 #'
 #' @return return a batch of shell scripts.
 #'
@@ -24,36 +25,39 @@
 #' jobid="fermi", email=NULL)
 #'
 #' @export
-run_fermikit <- function(fq,
-                         kitpath="/home/jolyang/bin/fermikit",
-                         s='3g', t=16, l=100,
-                         arrayjobs="1-2",
-                         jobid="fermi",
-                         email=NULL){
+run_fermikit <- function(
+  fq,
+  kitpath="$HOME/bin/fermikit",
+  s='2.3g', l=100,
+  email=NULL, runinfo = c(FALSE, "bigmemh", 1)
+){
 
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
   for(i in 1:nrow(fq)){
 
     shid <- paste0("slurm-script/run_fermikit_", i, ".sh")
-    #out <- gsub(".*/", "", out)
-    #outfile <- paste0(outdir, "/", out)
-
     #If you have multiple FASTQ files and want to trim adapters before assembly:
     #fermi.kit/fermi2.pl unitig -s3g -t16 -l100 -p prefix \
     #"fermi.kit/seqtk mergepe r1.fq r2.fq | fermi.kit/trimadap-mt -p4" > prefix.mak
-    cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", t, " -l", l, " -p ", fq$out[i], " \\", "\n",
+    mak <- paste0(fq$out[i], ".mak")
+    cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", runinfo[3], " -l", l, " -p ", fq$out[i], " \\", "\n",
                   "\"", kitpath,"/seqtk mergepe ", fq$fq1[i], " ", fq$fq2[i], " | ", " \\\n",
-                  kitpath, "/trimadap-mt -p",t, "\" > ", fq$out[i])
+                  kitpath, "/trimadap-mt -p", runinfo[3], "\" > ", mak)
 
-    cmd2 <- paste0("make -f ", fq$out[i])
+    cmd2 <- paste0("make -f ", mak)
     cat(c(cmd1, cmd2), file=shid, sep="\n", append=FALSE)
   }
 
+  message(sprintf("###>>> mergepe, trimadap-mt and then fermi unitig !"))
   shcode <- paste("sh slurm-script/run_fermikit_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
-
   set_array_job(shid="slurm-script/run_fermikit_array.sh",
-                shcode=shcode, arrayjobs=arrayjobs,
-                wd=NULL, jobid=jobid, email=email)
+                shcode=shcode, arrayjobs=paste("1", nrow(fq), sep="-"),
+                wd=NULL, jobid="fermikit", email=email, runinfo=runinfo)
+  #  sbatch -p bigmemh --mem 32784 --ntasks=4  slurm-script/run_gatk_array.sh
 }
 
+#' @rdname run_fermikit
+run_fermikit_vcfcall <- function(){
+
+}
