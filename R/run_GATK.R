@@ -5,6 +5,9 @@
 #' see more detail about GATK:
 #' \url{https://www.broadinstitute.org/gatk/guide/bp_step.php?p=1}
 #'
+#' idxing:
+#' bwa index Zea_mays.AGPv2.14.dna.toplevel.fa
+#'
 #' module load java/1.8
 #'
 #' local programs:
@@ -71,19 +74,19 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
         file=shid, sep="\n", append=FALSE)
 
     ### alignment and sorting using picard-tools
-    if(bwa) set_bwa(fq, run, picardpwd, ref.fa, shid)
+    if(bwa) set_bwa(fq, run, i, picardpwd, ref.fa, shid)
 
     #### mark duplicates
-    if(markDup) set_markDup(fq, picardpwd, run, shid)
+    if(markDup) set_markDup(fq, picardpwd, i, run, shid)
 
     ### Perform local realignment around indels
-    if(realignInDels) set_realignInDels(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, shid)
+    if(realignInDels) set_realignInDels(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Recalibrate Bases
-    if(recalBases) set_recalBases(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
+    if(recalBases) set_recalBases(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid)
 
     ### Variant Discovery using HaplotypeCaller
-    vcaller(fq, inputbam, ref.fa, gatkpwd, run, shid)
+    vcaller(fq, inputbam, i, ref.fa, gatkpwd, run, shid)
   }
 
   shcode <- paste("sh slurm-script/run_gatk_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
@@ -95,7 +98,7 @@ run_GATK <- function(inputdf, ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG165
 
 
 ##########
-set_bwa <- function(fq, run, picardpwd, ref.fa, shid){
+set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
     rg <- paste0("\'@RG\\tID:", fq$group[i], "\\tSM:", fq$sample[i],
@@ -122,7 +125,7 @@ set_bwa <- function(fq, run, picardpwd, ref.fa, shid){
 }
 
 ##########
-set_markDup <- function(fq, picardpwd, run, shid){
+set_markDup <- function(fq, picardpwd, i, run, shid){
   ### http://broadinstitute.github.io/picard/
   sorted_bam <- paste0(fq$out[i], ".sorted.bam")
   dedup_bam <- paste0(fq$out[i], ".dedup.bam")
@@ -144,7 +147,7 @@ set_markDup <- function(fq, picardpwd, run, shid){
 }
 
 ##########
-set_realignInDels <- function(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, shid){
+set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid){
   dir.create("$HOME/tmp", showWarnings = FALSE)
 
   ### input and output files
@@ -185,7 +188,7 @@ set_realignInDels <- function(fq, inputbam, indels.vcf, ref.fa, gatkpwd, run, sh
 }
 
 ##########
-set_recalBases <- function(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid){
+set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd, run, shid){
 
   ### input and output files
   if(inputbam){
@@ -247,7 +250,7 @@ set_recalBases <- function(fq, inputbam, indels.vcf, dbsnp.vcf, ref.fa, gatkpwd,
 }
 
 
-vcaller <- function(fq, inputbam, ref.fa, gatkpwd, run, shid){
+vcaller <- function(fq, inputbam, i, ref.fa, gatkpwd, run, shid){
   ### input and output files
   if(inputbam){
     recal_bam <- fq$bam[i]
