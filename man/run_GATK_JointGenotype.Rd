@@ -11,7 +11,7 @@ run_GATK_JointGenotype(gvcf, outvcf,
   hardfilter = TRUE,
   snpflt = "\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
   indelflt = "\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
-  email = NULL, runinfo = c(TRUE, "bigmemh", 4))
+  email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 
 set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid)
 }
@@ -61,7 +61,7 @@ hardfilter=TRUE,
 snpflt="\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
 indelflt="\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
 email=NULL,
-runinfo = c(TRUE, "bigmemh", 4) )
+runinfo = c(FALSE, "bigmemh", 1) )
 
 }
 

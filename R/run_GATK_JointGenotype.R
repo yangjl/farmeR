@@ -74,8 +74,8 @@ run_GATK_JointGenotype <- function(
 
 set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
 
-  cat("### Performs	joint	genotyping	on	all	samples	together",
-      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " –T	GenotypeGVCFs\\"),
+  cat("### Performs joint genotyping on all samples together",
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " –T	GenotypeGVCFs\\"),
       paste0("–R ", ref.fa, " \\"),
       file=shid, sep="\n", append=TRUE)
 
@@ -84,6 +84,7 @@ set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
         file=shid, sep="\n", append=TRUE)
   }
   cat(paste0("–o ", outvcf),
+      "",
       file=shid, sep="\n", append=TRUE)
 
   message("###>>> set up Variants calling using GATK GenotypeGVCFs!")
