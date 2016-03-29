@@ -32,7 +32,7 @@ ls(getNamespace("farmeR"), all.names=TRUE)
 2. picard-tools-2.1.1
 3. bwa 0.7.5a
 
-## RUN GATK for varinat calling in two steps
+## RUN GATK for varinat calling in two steps:
 
 1. alignment, mark duplicates, realign Indel, recal bases to variant calling for PE fq files in parallel.
 ```R

@@ -67,7 +67,7 @@ run_GATK_JointGenotype <- function(
   shcode <- paste("sh slurm-script/run_jointgenotype_$SLURM_ARRAY_TASK_ID.sh", sep="\n")
   set_array_job(shid="slurm-script/run_jointgenotype_array.sh",
                 shcode=shcode, arrayjobs="1",
-                wd=NULL, jobid="jgeno", email=email)
+                wd=NULL, jobid="jgeno", email=email, runinfo=runinfo)
   #  sbatch -p bigmemh --mem 32784 --ntasks=4  slurm-script/run_gatk_array.sh
 }
 
