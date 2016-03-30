@@ -5,8 +5,8 @@
 \alias{run_fermikit_vcfcall}
 \title{\code{Run Fermikit job on farm}}
 \usage{
-run_fermikit(fq, kitpath = "$HOME/bin/fermikit", s = "2.3g", l = 100,
-  email = NULL, runinfo = c(FALSE, "bigmemh", 1))
+run_fermikit(fq, kitpath = "$HOME/bin/fermikit", ref.fa = "", s = "2.3g",
+  l = 100, email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 
 run_fermikit_vcfcall()
 }
@@ -14,6 +14,8 @@ run_fermikit_vcfcall()
 \item{fq}{An input data.frame for fastq files. Must contains fq1, fq2 and out.}
 
 \item{kitpath}{The absolute or relative path of the fermi.kit directory that can invoke the pipeline.}
+
+\item{ref.fa}{The full path of genome with bwa indexed reference fasta file.}
 
 \item{s}{Approximate genome size, default=2.3g.}
 
@@ -25,8 +27,6 @@ run_fermikit_vcfcall()
 A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
 2) -p partition name, default=bigmemh and 3) --cpus, default=1.
 It will pass to \code{set_array_job}.}
-
-\item{genome}{The full path of genome with bwa indexed reference fasta file.}
 }
 \value{
 return a batch of shell scripts.

@@ -7,7 +7,7 @@
 #'
 #' @param fq An input data.frame for fastq files. Must contains fq1, fq2 and out.
 #' @param kitpath The absolute or relative path of the fermi.kit directory that can invoke the pipeline.
-#' @param genome The full path of genome with bwa indexed reference fasta file.
+#' @param ref.fa The full path of genome with bwa indexed reference fasta file.
 #' @param s Approximate genome size, default=2.3g.
 #' @param l Primary read length, default=100.
 #' @param email Your email address that farm will email to once the job was done/failed.
@@ -28,6 +28,7 @@
 run_fermikit <- function(
   fq,
   kitpath="$HOME/bin/fermikit",
+  ref.fa="",
   s='2.3g', l=100,
   email=NULL, runinfo = c(FALSE, "bigmemh", 1)
 ){
@@ -41,12 +42,14 @@ run_fermikit <- function(
     #fermi.kit/fermi2.pl unitig -s3g -t16 -l100 -p prefix \
     #"fermi.kit/seqtk mergepe r1.fq r2.fq | fermi.kit/trimadap-mt -p4" > prefix.mak
     mak <- paste0(fq$out[i], ".mak")
+    mag.gz <- paste0(fq$out[i], ".mag.gz")
     cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", runinfo[3], " -l", l, " -p ", fq$out[i], " \\", "\n",
                   "\"", kitpath,"/seqtk mergepe ", fq$fq1[i], " ", fq$fq2[i], " | ", " \\\n",
                   kitpath, "/trimadap-mt -p", runinfo[3], "\" > ", mak)
 
     cmd2 <- paste0("make -f ", mak)
-    cat(c(cmd1, cmd2), file=shid, sep="\n", append=FALSE)
+    cmd3 <- paste0(kitpath,"/run-calling -t", runinfo[3], " ", ref.fa, " ", mag.gz, " | sh")
+    cat(c(cmd1, cmd2, cmd3), file=shid, sep="\n", append=FALSE)
   }
 
   message(sprintf("###>>> mergepe, trimadap-mt and then fermi unitig !"))
