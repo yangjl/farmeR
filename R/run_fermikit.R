@@ -48,7 +48,7 @@ run_fermikit <- function(
     #"fermi.kit/seqtk mergepe r1.fq r2.fq | fermi.kit/trimadap-mt -p4" > prefix.mak
     mak <- paste0(fq$out[i], ".mak")
     mag.gz <- paste0(fq$out[i], ".mag.gz")
-    gz <- paste0(fq$out[i], ".fq.gz")
+    gz <- paste0(fq$out[i], "*fq.gz")
     pre <- paste0(fq$out[i], ".pre.gz")
     fmd <- paste0(fq$out[i], ".flt.fmd")
     cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", runinfo[3], " -l", l, " -p ", fq$out[i], " \\", "\n",
@@ -60,7 +60,7 @@ run_fermikit <- function(
     cmd4 <- paste0("rm ", gz)
     cmd5 <- paste0("rm ", fmd)
     cmd6 <- paste0("rm ", pre)
-    cat(c(cmd1, cmd2, cmd3, cmd4, cmd5), file=shid, sep="\n", append=FALSE)
+    cat(c(cmd1, cmd2, cmd3, cmd4, cmd5, cmd6), file=shid, sep="\n", append=FALSE)
   }
 
   message(sprintf("###>>> mergepe, trimadap-mt and then fermi unitig !"))
