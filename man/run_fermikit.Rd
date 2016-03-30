@@ -8,7 +8,8 @@
 run_fermikit(fq, kitpath = "$HOME/bin/fermikit", ref.fa = "", s = "2.3g",
   l = 100, email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 
-run_fermikit_vcfcall()
+run_fermikit_vcfcall(bamdir = "", kitpath = "$HOME/bin/fermikit",
+  ref.fa = "", email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
 \item{fq}{An input data.frame for fastq files. Must contains fq1, fq2 and out.}
@@ -27,6 +28,8 @@ run_fermikit_vcfcall()
 A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
 2) -p partition name, default=bigmemh and 3) --cpus, default=1.
 It will pass to \code{set_array_job}.}
+
+\item{bamdir}{Path of the bam files.}
 }
 \value{
 return a batch of shell scripts.
@@ -41,8 +44,13 @@ see more detail about fermikit by Li, Heng:
 \examples{
 fq <- data.frame(fq1=c("f_1.fq", "t_1.fq"), fq2=c("f_1.fq", "t_2.fq"), out=c("t1", "t2"))
 run_fermikit(fq, kitpath="/home/jolyang/bin/fermikit/",
-genome="/home/jolyang/dbcenter/AGP/AGPv2", s='3g', t=16, l=100, arrayjobs="1-2",
-jobid="fermi", email=NULL)
+             ref.fa="path/to/fastq.fa", s='2.3g', l=100,
+             email=NULL, runinfo = c(FALSE, "bigmemh", 1)
+
+run_fermikit(bamdir="", kitpath="$HOME/bin/fermikit",
+             ref.fa="",
+             email=NULL, runinfo = c(FALSE, "bigmemh", 1))
+
 
 }
 
