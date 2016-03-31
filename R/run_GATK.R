@@ -143,7 +143,7 @@ set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
       paste0("INPUT=", sorted_bam, " \\"),
       paste0("OUTPUT=", dedup_bam, " \\"),
       paste0("METRICS_FILE=", metrics),
-      paste("rm", sorted_bam),
+      #paste("rm", sorted_bam),
       paste0(""),
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
              "-jar $HOME/bin/picard-tools-2.1.1/picard.jar BuildBamIndex \\"),
