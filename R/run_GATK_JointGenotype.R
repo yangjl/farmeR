@@ -66,7 +66,7 @@ run_GATK_JointGenotype <- function(
       paste(""),
       file=shid, sep="\n", append=FALSE)
 
-  set_jointgenotype(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid)
+  set_jointgenotype(gvcf, outvcf, gatkpwd, ref.fa, includeNonVariantSites, runinfo, shid)
 
   if(hardfilter) set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid)
 
@@ -78,7 +78,7 @@ run_GATK_JointGenotype <- function(
 }
 
 
-set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
+set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, includeNonVariantSites, runinfo, shid){
 
   cat("### Performs joint genotyping on all samples together",
       paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs \\"),
@@ -102,7 +102,7 @@ set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
 }
 
 
-set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
+set_VQSR <- function(gvcf, outvcf, gatkpwd, ref.fa, includeNonVariantSites, runinfo, shid){
   ### Recalibrate variant quality scores = run VQSR
   ## link https://www.broadinstitute.org/gatk/guide/article?id=2805
   message("###>>> set up Recalibrate variant quality scores = run GATK VQSR!")
