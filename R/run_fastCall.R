@@ -15,7 +15,7 @@
 #' @param ref.fa The full path of genome with bwa indexed reference fasta file.
 #' @param fastCallpwd The absolute path of GenomeAnalysisTK.jar.
 #' @param bamdir The full path of the bam files.
-#' @param baminfofile Taxa info for bam files, sep="\t", each line contains 1 to N bam files for the taxa.
+#' @param baminfofile Taxa info for bam files, each line contains 1 to N bam files for the taxa.
 #' @param chr Chr number, i.e. 1, default=NULL, ten chrs will run as 10 array jobs.
 #' @param email Your email address that farm will email to once the jobs were done/failed.
 #' @param outdir The full path of the output files. Note log and shell codes will also put here.
