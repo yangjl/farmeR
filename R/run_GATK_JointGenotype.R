@@ -81,12 +81,13 @@ run_GATK_JointGenotype <- function(
 set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, includeNonVariantSites, runinfo, shid){
 
   cat("### Performs joint genotyping on all samples together",
-      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs \\"),
-      paste0("–R ", ref.fa, " \\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
+      paste0("-T GenotypeGVCFs \\"),
+      paste0("-R ", ref.fa, " \\"),
       file=shid, sep="\n", append=TRUE)
 
   for(i in 1:length(gvcf)){
-    cat(paste0("–V ", gvcf[i],	" \\"),
+    cat(paste0("--variant ", gvcf[i],	" \\"),
         file=shid, sep="\n", append=TRUE)
   }
 
@@ -94,7 +95,7 @@ set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, includeNonVariantSi
     cat("--includeNonVariantSites \\",
         file=shid, sep="\n", append=TRUE)
   }
-  cat(paste0("–o ", outvcf),
+  cat(paste0("-o ", outvcf),
       "",
       file=shid, sep="\n", append=TRUE)
 
