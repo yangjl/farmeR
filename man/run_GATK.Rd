@@ -52,6 +52,7 @@ idxing:
 bwa index Zea_mays.AGPv2.14.dna.toplevel.fa
 
 module load java/1.8
+module load bwa/0.7.9a
 
 local programs:
 bwa Version: 0.7.5a-r405

@@ -1,6 +1,6 @@
 # farmeR
 
-This is an R packages to generate pipelines for maize Genomic and Genetic analysis.
+This is an R packages to generate genomic and bioinformatic pipelines and submit jobs on HPC system running slurm.
 
 ## Install
 
@@ -13,26 +13,19 @@ install_github("yangjl/farmeR")
 library(farmeR)
 ```
 
-OR
-```R
-git clone 
-library(devtools)
-load_all(farmeR)
-```
-
 List all the functions in the package and find help.
 
 ```R
 ls(getNamespace("farmeR"), all.names=TRUE)
 ?run_GATK
 ```
-## Dependencies:
 
+## RUN GATK for varinat calling in two steps:
+
+### Dependencies:
 1. GenomeAnalysisTK-3.5
 2. picard-tools-2.1.1
 3. bwa 0.7.5a
-
-## RUN GATK for varinat calling in two steps:
 
 1. alignment, mark duplicates, realign Indel, recal bases to variant calling for PE fq files in parallel.
 ```R

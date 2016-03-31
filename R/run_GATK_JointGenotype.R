@@ -10,16 +10,20 @@
 #' picard-tools-2.1.1
 #' GenomeAnalysisTK-3.5/
 #'
-#' @param fq An input data.frame for fastq files. Must contains fq1, fq2 and out.
-#' @param kitpath The absolute or relative path of the fermi.kit directory that can invoke the pipeline.
-#' @param genome The full path of genome with bwa indexed reference fasta file.
-#' @param s Approximate genome size, default=3g.
-#' @param t Number of threads, default=16.
-#' @param l Primary read length, default=100.
-#' @param arrayjobs A character specify the number of array you try to run, i.e. 1-100.
-#' @param jobid The job name show up in your sq NAME column.
+#' @param gvcf A vector of g.vcf files.
+#' @param outvcf File name of the output vcf files, default="mysamples.vcf".
+#' @param ref.fa The full path of genome with bwa indexed reference fasta file.
+#' @param gatkpwd The absolute path of GenomeAnalysisTK.jar.
+#' @param includeNonVariantSites Include loci found to be non-variant after genotyping (for GenotypeGVCFs).
+#' @param hardfilter Whether to filter variants. see detail about how to apply hard filters to a call set.
+#'        \url{https://www.broadinstitute.org/gatk/guide/article?id=2806}
+#' @param snpflt Parameters to apply the filter to the SNP call set.
+#' @param indelflt Parameters to apply the filter to the Indel call set.
 #' @param email Your email address that farm will email to once the job was done/failed.
-#'
+#' @param runinfo Parameters specify the array job partition information.
+#' A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
+#' 2) -p partition name, default=bigmemh and 3) --cpus, default=1.
+#' It will pass to \code{set_array_job}.
 #' @return return a batch of shell scripts.
 #'
 #' @examples
@@ -27,9 +31,10 @@
 #' outvcf <- "out.vcf"
 #' run_GATK_JointGenotype(
 #' gvcf,
-#' outvcf,
+#' outvcf="mysamples.vcf",
 #' ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
 #' gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+#' includeNonVariantSites=FALSE,
 #' hardfilter=TRUE,
 #' snpflt="\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"",
 #' indelflt="\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"",
@@ -42,6 +47,7 @@ run_GATK_JointGenotype <- function(
   outvcf,
   ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
   gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+  includeNonVariantSites=FALSE,
   hardfilter=TRUE,
   snpflt="\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\"",
   indelflt="\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\"",
@@ -75,12 +81,17 @@ run_GATK_JointGenotype <- function(
 set_jointgenotype <- function(gvcf, outvcf, gatkpwd, ref.fa, runinfo, shid){
 
   cat("### Performs joint genotyping on all samples together",
-      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " –T	GenotypeGVCFs\\"),
+      paste0("java -Xmx", floor(as.numeric(runinfo[4])/1024), "g ", "-jar ", gatkpwd, " –T GenotypeGVCFs \\"),
       paste0("–R ", ref.fa, " \\"),
       file=shid, sep="\n", append=TRUE)
 
   for(i in 1:length(gvcf)){
     cat(paste0("–V ", gvcf[i],	" \\"),
+        file=shid, sep="\n", append=TRUE)
+  }
+
+  if(includeNonVariantSites){
+    cat("--includeNonVariantSites \\",
         file=shid, sep="\n", append=TRUE)
   }
   cat(paste0("–o ", outvcf),

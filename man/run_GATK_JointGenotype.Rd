@@ -8,7 +8,7 @@
 run_GATK_JointGenotype(gvcf, outvcf,
   ref.fa = "~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
   gatkpwd = "$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
-  hardfilter = TRUE,
+  includeNonVariantSites = FALSE, hardfilter = TRUE,
   snpflt = "\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
   indelflt = "\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
   email = NULL, runinfo = c(FALSE, "bigmemh", 1))
@@ -16,23 +16,29 @@ run_GATK_JointGenotype(gvcf, outvcf,
 set_hardfilter(outvcf, gatkpwd, snpflt, indelflt, ref.fa, runinfo, shid)
 }
 \arguments{
+\item{gvcf}{A vector of g.vcf files.}
+
+\item{outvcf}{File name of the output vcf files, default="mysamples.vcf".}
+
+\item{ref.fa}{The full path of genome with bwa indexed reference fasta file.}
+
+\item{gatkpwd}{The absolute path of GenomeAnalysisTK.jar.}
+
+\item{includeNonVariantSites}{Include loci found to be non-variant after genotyping (for GenotypeGVCFs).}
+
+\item{hardfilter}{Whether to filter variants. see detail about how to apply hard filters to a call set.
+\url{https://www.broadinstitute.org/gatk/guide/article?id=2806}}
+
+\item{snpflt}{Parameters to apply the filter to the SNP call set.}
+
+\item{indelflt}{Parameters to apply the filter to the Indel call set.}
+
 \item{email}{Your email address that farm will email to once the job was done/failed.}
 
-\item{fq}{An input data.frame for fastq files. Must contains fq1, fq2 and out.}
-
-\item{kitpath}{The absolute or relative path of the fermi.kit directory that can invoke the pipeline.}
-
-\item{genome}{The full path of genome with bwa indexed reference fasta file.}
-
-\item{s}{Approximate genome size, default=3g.}
-
-\item{t}{Number of threads, default=16.}
-
-\item{l}{Primary read length, default=100.}
-
-\item{arrayjobs}{A character specify the number of array you try to run, i.e. 1-100.}
-
-\item{jobid}{The job name show up in your sq NAME column.}
+\item{runinfo}{Parameters specify the array job partition information.
+A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
+2) -p partition name, default=bigmemh and 3) --cpus, default=1.
+It will pass to \code{set_array_job}.}
 }
 \value{
 return a batch of shell scripts.
@@ -54,9 +60,10 @@ gvcf <- c("1.vcf", "2.vcf")
 outvcf <- "out.vcf"
 run_GATK_JointGenotype(
 gvcf,
-outvcf,
+outvcf="mysamples.vcf",
 ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
 gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
+includeNonVariantSites=FALSE,
 hardfilter=TRUE,
 snpflt="\\"QD < 2.0 || FS > 60.0 || MQ < 40.0 || MQRankSum < -12.5 || ReadPosRankSum < -8.0\\"",
 indelflt="\\"QD < 2.0 || FS > 200.0 || ReadPosRankSum < -20.0\\"",
