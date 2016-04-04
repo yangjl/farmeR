@@ -13,7 +13,9 @@ run_GATK(inputdf,
 }
 \arguments{
 \item{inputdf}{An input data.frame for fastq files. Must contains fq1, fq2, out (and/or bam).
-If inputdf contained bam, bwa alignment will be scaped.}
+If inputdf contained bam, bwa alignment will be escaped.
+Additional columns: group (group id), sample (sample id), PL (platform, i.e. illumina),
+LB (library id), PU (unit, i.e. unit1). These strings (or info) will pass to BWA mem through -R.}
 
 \item{ref.fa}{The full path of genome with bwa indexed reference fasta file.}
 

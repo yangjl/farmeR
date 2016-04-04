@@ -17,7 +17,10 @@
 #' GenomeAnalysisTK-3.5/
 #'
 #' @param inputdf An input data.frame for fastq files. Must contains fq1, fq2, out (and/or bam).
-#' If inputdf contained bam, bwa alignment will be scaped.
+#' If inputdf contained bam, bwa alignment will be escaped.
+#' Additional columns: group (group id), sample (sample id), PL (platform, i.e. illumina),
+#' LB (library id), PU (unit, i.e. unit1). These strings (or info) will pass to BWA mem through -R.
+#'
 #' @param ref.fa The full path of genome with bwa indexed reference fasta file.
 #' @param gatkpwd The absolute path of GenomeAnalysisTK.jar.
 #' @param picardpwd The absolute path of picard.jar.
@@ -124,7 +127,7 @@ set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
         paste0("    INPUT=", aligned_sam, " \\"),
         paste0("    OUTPUT=", sorted_bam, " \\"),
         "    SORT_ORDER=coordinate",
-        paste("rm", aligned_sam),
+        #paste("rm", aligned_sam),
         paste(""),
         file=shid, sep="\n", append=TRUE)
     message("###>>> set up BWA mem and then sort to bam using picard-tools!")

@@ -16,7 +16,7 @@ run_fastCall(ref.fa = "~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
 
 \item{bamdir}{The full path of the bam files.}
 
-\item{baminfofile}{Taxa info for bam files, sep="\t", each line contains 1 to N bam files for the taxa.}
+\item{baminfofile}{Taxa info for bam files, each line contains 1 to N bam files for the taxa.}
 
 \item{chr}{Chr number, i.e. 1, default=NULL, ten chrs will run as 10 array jobs.}
 
