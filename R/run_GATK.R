@@ -268,7 +268,7 @@ vcaller <- function(fq, inputbam, i, ref.fa, gatkpwd, run, shid){
       paste0("-R ", ref.fa, " \\"),
       paste0("-I ", inputbam, " \\"),
       #paste0("--genotyping_mode DISCOVERY \\"),
-      "–ERC	GVCF \\",
+      "-ERC GVCF \\",
       #paste0("-stand_emit_conf 10 \\"),
       #paste0("-stand_call_conf 30 \\"),
       paste0("-o ", gvcf),
