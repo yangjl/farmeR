@@ -54,7 +54,7 @@ run_fermikit <- function(
     sam <- paste0(fq$out[i], ".unsrt.sam.gz")
     cmd1 <- paste0(kitpath, "/fermi2.pl unitig -s", s, " -t", runinfo[3], " -l", l, " -p ", fq$out[i], " \\", "\n",
                   "\"", kitpath,"/seqtk mergepe ", fq$fq1[i], " ", fq$fq2[i], " | ", " \\\n",
-                  kitpath, "/trimadap-mt -p", runinfo[3], "\" > ", mak)
+                  kitpath, "/trimadap-mt -p", as.numeric(runinfo[3]) -1, "\" > ", mak)
 
     cmd2 <- paste0("make -f ", mak)
     cmd3 <- paste0(kitpath,"/run-calling -t", runinfo[3], " ", ref.fa, " ", mag.gz, " | sh")
