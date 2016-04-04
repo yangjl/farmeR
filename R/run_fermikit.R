@@ -57,7 +57,7 @@ run_fermikit <- function(
                   kitpath, "/trimadap-mt -p", as.numeric(runinfo[3]) -1, "\" > ", mak)
 
     cmd2 <- paste0("make -f ", mak)
-    cmd3 <- paste0(kitpath,"/run-calling -t", runinfo[3], " ", ref.fa, " ", mag.gz, " | sh")
+    cmd3 <- paste0(kitpath,"/run-calling -t", as.numeric(runinfo[3]) -1, " ", ref.fa, " ", mag.gz, " | sh")
     cmd4 <- paste0("rm ", gz)
     cmd5 <- paste0("rm ", fmd)
     cmd6 <- paste0("rm ", pre)
