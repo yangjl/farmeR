@@ -24,6 +24,7 @@
 #' @param ref.fa The full path of genome with bwa indexed reference fasta file.
 #' @param gatkpwd The absolute path of GenomeAnalysisTK.jar.
 #' @param picardpwd The absolute path of picard.jar.
+#' @param minscore Minimum score to output, default=5, [bwa 30]. It will pass to bwa mem -T INT.
 #'
 #' @param markDup Mark Duplicates, default=TRUE.
 #' @param realignInDels Realign Indels, default=FALSE. IF TRUE, a golden indel.vcf file should be provided.
@@ -56,6 +57,7 @@ run_GATK <- function(inputdf,
                      ref.fa="~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
                      gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
                      picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
+                     minscore=5,
                      markDup=TRUE,
                      realignInDels=FALSE, indels.vcf="indels.vcf",
                      recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
@@ -81,7 +83,7 @@ run_GATK <- function(inputdf,
       inputbam <- fq$bam[i]
     }else{
       ### alignment and sorting using picard-tools
-      inputbam <- set_bwa(fq, run, picardpwd, i, ref.fa, shid)
+      inputbam <- set_bwa(fq, run, minscore, picardpwd, i, ref.fa, shid)
     }
 
     #### mark duplicates
@@ -107,7 +109,7 @@ run_GATK <- function(inputdf,
 
 
 ##########
-set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
+set_bwa <- function(fq, run, minscore, picardpwd, i, ref.fa, shid){
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
     rg <- paste0("\'@RG\\tID:", fq$group[i], "\\tSM:", fq$sample[i],
@@ -118,7 +120,7 @@ set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
     cat(paste("### Generate a SAM file containing aligned reads"),
-        paste("bwa mem -M -R", rg, " -t", run[3], " ", ref.fa, fq$fq1[i], fq$fq2[i], ">", aligned_sam),
+        paste("bwa mem -M -R", rg, "-T", minscore, "-t", run[3], ref.fa, fq$fq1[i], fq$fq2[i], ">", aligned_sam),
         paste(""),
 
         ### http://broadinstitute.github.io/picard/
@@ -127,7 +129,7 @@ set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
         paste0("    INPUT=", aligned_sam, " \\"),
         paste0("    OUTPUT=", sorted_bam, " \\"),
         "    SORT_ORDER=coordinate",
-        #paste("rm", aligned_sam),
+        paste("rm", aligned_sam),
         paste(""),
         file=shid, sep="\n", append=TRUE)
     message("###>>> set up BWA mem and then sort to bam using picard-tools!")
@@ -140,18 +142,21 @@ set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
   sorted_bam <- inputbam
   dedup_bam <- gsub("bam$", "dedup.bam", sorted_bam)
   metrics <- paste0(fq$out[i], "_metrics.txt")
+  log <- paste0(fq$out[i], ".sorted.bam.log")
 
   cat(paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
              "-jar ", picardpwd, " MarkDuplicates \\"),
       paste0("INPUT=", sorted_bam, " \\"),
       paste0("OUTPUT=", dedup_bam, " \\"),
       paste0("METRICS_FILE=", metrics),
-      #paste("rm", sorted_bam),
+      #paste(""),
       paste0(""),
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
              "-jar $HOME/bin/picard-tools-2.1.1/picard.jar BuildBamIndex \\"),
       paste0("INPUT=", dedup_bam),
       "",
+      paste0("samtools flagstat ", sorted_bam, " > ", log ),
+      #paste("rm", sorted_bam),
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Mark Duplicates using picard-tools!")
   return(dedup_bam)
