@@ -7,9 +7,8 @@ This is an R packages to generate genomic and bioinformatic pipelines and submit
 Install [devtools](https://github.com/hadley/devtools) first, and then use `devtools` to install `imputeR` from github.
 
 ```R
-devtools::install_github("hadley/devtools")
-library(devtools)
-install_github("yangjl/farmeR")
+#install.packages(devtools)
+devtools::install_github("yangjl/farmeR")
 library(farmeR)
 ```
 
