@@ -118,7 +118,7 @@ set_bwa <- function(fq, run, picardpwd, i, ref.fa, shid){
     #Generate a SAM file containing aligned reads
     #http://gatkforums.broadinstitute.org/gatk/discussion/2799/howto-map-and-mark-duplicates
     cat(paste("### Generate a SAM file containing aligned reads"),
-        paste("bwa mem -M -R", rg, " -t", run[3], "-p", ref.fa, fq$fq1[i], fq$fq2[i], ">", aligned_sam),
+        paste("bwa mem -M -R", rg, " -t", run[3], " ", ref.fa, fq$fq1[i], fq$fq2[i], ">", aligned_sam),
         paste(""),
 
         ### http://broadinstitute.github.io/picard/
