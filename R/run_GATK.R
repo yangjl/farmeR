@@ -144,7 +144,8 @@ set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
   metrics <- paste0(fq$out[i], "_metrics.txt")
   log <- paste0(fq$out[i], ".sorted.bam.log")
 
-  cat(paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
+  cat("### Mark duplicates",
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
              "-jar ", picardpwd, " MarkDuplicates \\"),
       paste0("INPUT=", sorted_bam, " \\"),
       paste0("OUTPUT=", dedup_bam, " \\"),
@@ -156,6 +157,7 @@ set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
       paste0("INPUT=", dedup_bam),
       "",
       paste0("samtools flagstat ", sorted_bam, " > ", log ),
+      "",
       #paste("rm", sorted_bam),
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Mark Duplicates using picard-tools!")
@@ -258,17 +260,18 @@ set_recalBases <- function(fq, inputbam, i, indels.vcf, dbsnp.vcf, ref.fa, gatkp
 
 vcaller <- function(fq, inputbam, i, ref.fa, gatkpwd, run, shid){
   ### input and output files
-  raw_variants.vcf <- paste0(fq$out[i], ".raw_variants.vcf")
+  gvcf <- paste0(fq$out[i], ".g.vcf")
 
   cat("### Call variants in your sequence data",
       paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ", "-jar ", gatkpwd, " \\"),
       paste0("-T HaplotypeCaller \\"),
       paste0("-R ", ref.fa, " \\"),
       paste0("-I ", inputbam, " \\"),
-      paste0("--genotyping_mode DISCOVERY \\"),
-      paste0("-stand_emit_conf 10 \\"),
-      paste0("-stand_call_conf 30 \\"),
-      paste0("-o ", raw_variants.vcf),
+      #paste0("--genotyping_mode DISCOVERY \\"),
+      "–ERC	GVCF \\",
+      #paste0("-stand_emit_conf 10 \\"),
+      #paste0("-stand_call_conf 30 \\"),
+      paste0("-o ", gvcf),
       file=shid, sep="\n", append=TRUE)
   message("###>>> set up Variants calling using GATK HaplotypeCaller!")
 
