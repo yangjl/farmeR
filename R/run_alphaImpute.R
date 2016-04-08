@@ -85,7 +85,7 @@ run_alphaimpute <- function(
   #  sbatch -p bigmemh --mem 32784 --ntasks=4  slurm-script/run_gatk_array.sh
 }
 
-system("sbatch -p bigmemh --mem 32784 --ntasks=4 slurm-script/run_alpha_array.sh")
+#system("sbatch -p bigmemh --mem 32784 --ntasks=4 slurm-script/run_alpha_array.sh")
 
 #' @rdname run_alphaimpute
 set_alphaimpute <- function(ped, chrgeno, numsnp, EditingParameters,

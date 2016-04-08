@@ -3,6 +3,7 @@
 export(get_runinfo)
 export(run_GATK)
 export(run_GATK_JointGenotype)
+export(run_GenSel4)
 export(run_alphaimpute)
 export(run_aspera)
 export(run_bwamem)
