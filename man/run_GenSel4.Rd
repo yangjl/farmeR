@@ -4,11 +4,13 @@
 \alias{run_GenSel4}
 \title{\code{Run GenSel on farm}}
 \usage{
-run_GenSel4(inputdf, inpdir = "largedata/", email = NULL,
+run_GenSel4(inputdf, inpdir = "largedata/", cmdno = 1, email = NULL,
   runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
 \item{inputdf}{An input data.frame.}
+
+\item{cmdno}{Number of commands per CPU, i.e. number of rows per inputdf.}
 
 \item{email}{Your email address that farm will email to once the jobs were done/failed.}
 
@@ -33,9 +35,10 @@ inputdf <- data.frame(pi=0.995,
    geno="/Users/yangjl/Documents/GWAS2_KRN/SNP/merged/geno_chr.newbin",
    trainpheno="/Users/yangjl/Documents/Heterosis_GWAS/pheno2011/reports/cd_GenSel_fullset.txt",
    testpheno="/Users/yangjl/Documents/Heterosis_GWAS/pheno2011/reports/cd_GenSel_fullset.txt",
-   chainLength=1000, burnin=100, varGenotypic=1.4, varResidual=2)
+   chainLength=1000, burnin=100, varGenotypic=1.4, varResidual=2,
+   out="test_out")
 
-run_GenSel4(inputdf, inpdir="slurm=script", email=NULL, runinfo = c(FALSE, "bigmemh", 1) )
+run_GenSel4(inputdf, inpdir="slurm-script", email=NULL, runinfo = c(FALSE, "bigmemh", 1) )
 
 }
 
