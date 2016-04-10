@@ -30,6 +30,7 @@
 #' @export
 run_GenSel4 <- function(
   inputdf, inpdir="largedata/", cmdno=1,
+  shid = "slurm-script/run_gensel_array.sh",
   email=NULL, runinfo = c(FALSE, "bigmemh", 1)
 ){
 
@@ -52,9 +53,8 @@ run_GenSel4 <- function(
   ### setup shell id
   set_GS(inputdf, cmdno, inpdir)
 
-  shcode <- paste0("sh slurm-script/run_gensel_$SLURM_ARRAY_TASK_ID.sh")
-  set_array_job(shid="slurm-script/run_gensel_array.sh",
-                shcode=shcode, arrayjobs=paste("1", nrow(inputdf)/cmdno, sep="-"),
+  shcode <- paste0("sh ", inpdir, "/run_gensel_$SLURM_ARRAY_TASK_ID.sh")
+  set_array_job(shid=shid, shcode=shcode, arrayjobs=paste("1", nrow(inputdf)/cmdno, sep="-"),
                 wd=NULL, jobid="gensel", email=email, runinfo=runinfo)
 }
 
@@ -107,7 +107,7 @@ set_GS <- function(inputdf, cmdno, inpdir){
 
     srow <- cmdno*(j-1) + 1
     erow <- cmdno*j
-    shid <- paste0("slurm-script/run_gensel_", j, ".sh")
+    shid <- paste0(inpdir, "/run_gensel_", j, ".sh")
 
     sh1 <- paste0("GenSel4R ", inpdir, "/", inputdf$out[srow:erow], ".inp > ",
                      inpdir, "/", inputdf$out[srow:erow], ".log")
