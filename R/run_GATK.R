@@ -144,7 +144,7 @@ set_bwa <- function(fq, run, minscore, picardpwd, i, ref.fa, shid){
 set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
   ### http://broadinstitute.github.io/picard/
   sorted_bam <- inputbam
-  dedup_bam <- gsub("bam$", "dedup.bam", sorted_bam)
+  dedup_bam <- paste0(fq$out[i], ".sorted.dedup.bam")
   metrics <- paste0(fq$out[i], "_metrics.txt")
   log <- paste0(fq$out[i], ".sorted.bam.log")
 
@@ -192,7 +192,7 @@ set_addRG <- function(fq, picardpwd, inputbam, i, run, shid){
       "",
       #paste("rm", sorted_bam),
       file=shid, sep="\n", append=TRUE)
-  message("###>>> set up Mark Duplicates using picard-tools!")
+  message("###>>> set up add RG using picard-tools!")
   return(dedupRG_bam)
 }
 
