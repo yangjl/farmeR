@@ -180,6 +180,8 @@ set_addRG <- function(fq, picardpwd, inputbam, i, run, shid){
              "-jar ", picardpwd, " AddOrReplaceReadGroups \\"),
       paste0("INPUT=", inputbam, " \\"),
       paste0("OUTPUT=", dedupRG_bam, " \\"),
+      paste0("SORT_ORDER=coordinate \\"),
+      paste0("CREATE_INDEX=true \\"),
       paste0("RGID=", fq$group[i], " \\"),
       paste0("RGLB=", fq$LB[i], " \\"),
       paste0("RGPL=", fq$PL[i], " \\"),
