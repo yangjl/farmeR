@@ -27,6 +27,7 @@
 #' @param minscore Minimum score to output, default=5, [bwa 30]. It will pass to bwa mem -T INT.
 #'
 #' @param markDup Mark Duplicates, default=TRUE.
+#' @param addRG Add or replace Read Groups using Picard AddOrReplaceReadGroups, default=FALSE.
 #' @param realignInDels Realign Indels, default=FALSE. IF TRUE, a golden indel.vcf file should be provided.
 #' @param indels.vcf The full path of indels.vcf.
 #' @param recalBases Recalibrate Bases, default=FALSE. IF TRUE, a golden snps.vcf file should be provided.
@@ -58,7 +59,7 @@ run_GATK <- function(inputdf,
                      gatkpwd="$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
                      picardpwd="$HOME/bin/picard-tools-2.1.1/picard.jar",
                      minscore=5,
-                     markDup=TRUE,
+                     markDup=TRUE, addRG=FALSE,
                      realignInDels=FALSE, indels.vcf="indels.vcf",
                      recalBases=FALSE, dbsnp.vcf="dbsnp.vcf",
                      email=NULL, runinfo = c(FALSE, "bigmemh", 1)){
@@ -88,6 +89,8 @@ run_GATK <- function(inputdf,
 
     #### mark duplicates
     if(markDup) inputbam <- set_markDup(fq, picardpwd, inputbam, i, run, shid)
+
+    if(addRG) inputbam <- set_addRG(fq, picardpwd, inputbam, i, run, shid)
 
     ### Perform local realignment around indels
     if(realignInDels) inputbam <- set_realignInDels(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid)
@@ -129,12 +132,13 @@ set_bwa <- function(fq, run, minscore, picardpwd, i, ref.fa, shid){
         paste0("    INPUT=", aligned_sam, " \\"),
         paste0("    OUTPUT=", sorted_bam, " \\"),
         "    SORT_ORDER=coordinate",
-        paste("rm", aligned_sam),
+        paste("#rm", aligned_sam),
         paste(""),
         file=shid, sep="\n", append=TRUE)
     message("###>>> set up BWA mem and then sort to bam using picard-tools!")
     return(sorted_bam)
 }
+
 
 ##########
 set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
@@ -163,6 +167,33 @@ set_markDup <- function(fq, picardpwd, inputbam, i, run, shid){
   message("###>>> set up Mark Duplicates using picard-tools!")
   return(dedup_bam)
 }
+
+###
+set_addRG <- function(fq, picardpwd, inputbam, i, run, shid){
+  ### http://broadinstitute.github.io/picard/
+  dedupRG_bam <- gsub("bam$", "RG.bam", inputbam)
+  #rg <- paste0("\'@RG\\tID:", fq$group[i], "\\tSM:", fq$sample[i],
+  #             "\\tPL:", fq$PL[i], "\\tLB:", fq$LB[i], "\\tPU:", fq$PU[i], "\'")
+
+  cat("### add read groups",
+      paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g ",
+             "-jar ", picardpwd, " AddOrReplaceReadGroups \\"),
+      paste0("INPUT=", inputbam, " \\"),
+      paste0("OUTPUT=", dedupRG_bam, " \\"),
+      paste0("RGID=", fq$group[i], " \\"),
+      paste0("RGLB=", fq$LB[i], " \\"),
+      paste0("RGPL=", fq$PL[i], " \\"),
+      paste0("RGPU=", fq$PU[i], " \\"),
+      paste0("RGSM=", fq$sample[i]),
+      #paste("RGPL=illumina \"),
+      paste0(""),
+      "",
+      #paste("rm", sorted_bam),
+      file=shid, sep="\n", append=TRUE)
+  message("###>>> set up Mark Duplicates using picard-tools!")
+  return(dedupRG_bam)
+}
+
 
 ##########
 set_realignInDels <- function(fq, inputbam, i, indels.vcf, ref.fa, gatkpwd, run, shid){

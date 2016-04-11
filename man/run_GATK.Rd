@@ -8,9 +8,9 @@ run_GATK(inputdf,
   ref.fa = "~/dbcenter/Ecoli/reference/Ecoli_k12_MG1655.fasta",
   gatkpwd = "$HOME/bin/GenomeAnalysisTK-3.5/GenomeAnalysisTK.jar",
   picardpwd = "$HOME/bin/picard-tools-2.1.1/picard.jar", minscore = 5,
-  markDup = TRUE, realignInDels = FALSE, indels.vcf = "indels.vcf",
-  recalBases = FALSE, dbsnp.vcf = "dbsnp.vcf", email = NULL,
-  runinfo = c(FALSE, "bigmemh", 1))
+  markDup = TRUE, addRG = FALSE, realignInDels = FALSE,
+  indels.vcf = "indels.vcf", recalBases = FALSE, dbsnp.vcf = "dbsnp.vcf",
+  email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
 \item{inputdf}{An input data.frame for fastq files. Must contains fq1, fq2, out (and/or bam).
@@ -27,6 +27,8 @@ LB (library id), PU (unit, i.e. unit1). These strings (or info) will pass to BWA
 \item{minscore}{Minimum score to output, default=5, [bwa 30]. It will pass to bwa mem -T INT.}
 
 \item{markDup}{Mark Duplicates, default=TRUE.}
+
+\item{addRG}{Add or replace Read Groups using Picard AddOrReplaceReadGroups, default=FALSE.}
 
 \item{realignInDels}{Realign Indels, default=FALSE. IF TRUE, a golden indel.vcf file should be provided.}
 
