@@ -124,7 +124,7 @@ get_runinfo <- function(runinfo){
 set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          wd=NULL, jobid="myjob", email=NULL,
-                         run=c(TRUE, "bigmemh", "8196", "1")){
+                         run=c(TRUE, "bigmemh", "1")){
   ##### setup working directory
   if(is.null(wd)){
     wd <- getwd()
