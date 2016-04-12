@@ -31,11 +31,16 @@ run_bs2vcf <- function(
   for(i in 1:nrow(inputdf)){
     shid <- paste0("slurm-script/run_bs2vcf_", i, ".sh")
     ### header of the shell code
-    cmd <- paste("bs2vcf -i", inputdf$bsmap[i], "-o", inputdf$out[i])
+    cmd1 <- paste("bs2vcf -i", inputdf$bsmap[i], "-o", inputdf$out[i])
+
+    #bgzip test_methratio.vcf; tabix -p vcf test_methratio.vcf.gz
+    cmd2 <- paste0("bgzip ", inputdf$out[i], "; tabix -p vcf ", inputdf$out[i], ".gz")
+
     cat("### ba2vcf pipeline created by farmeR",
         paste("###", format(Sys.time(), "%a %b %d %X %Y")),
         paste(""),
-        cmd,
+        cmd1,
+        cmd2,
         file=shid, sep="\n", append=FALSE)
   }
 
