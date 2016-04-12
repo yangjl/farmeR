@@ -161,7 +161,7 @@ set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
 
   #### the sbatch code
   runinfo <- get_runinfo(runinfo)
-  runcode <- paste0("sbatch -p ", runinfo[2], " --mem ", run[4], " --ntasks=", run[3], " ", slurmsh)
+  runcode <- paste0("sbatch -p ", runinfo[2], " --mem ", runinfo[4], " --ntasks=", runinfo[3], " ", slurmsh)
 
   if(runinfo[1]){
     message(runcode)
