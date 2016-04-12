@@ -106,8 +106,8 @@ get_runinfo <- function(runinfo){
 #' @param wd Working directory, default=NULL. It will use your current directory.
 #' @param jobid The job name show up in your sq NAME column.
 #' @param email Your email address that farm will email to once the job was done/failed.
-#' @param run  Parameters control the array job partition.
-#' A vector of c(TRUE, "bigmemh", "8196", "1"): 1) run or not, 2) -p partition name, 3) --mem, adn 4) --ntasks.
+#' @param runinfo  Parameters control the array job partition.
+#' A vector of c(TRUE, "bigmemh", "1"): 1) run or not, 2) -p partition name, 3)  --ntasks.
 #'
 #'
 #' @return a shell file.
@@ -124,7 +124,7 @@ get_runinfo <- function(runinfo){
 set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
                          shcode="sh largedata/myscript.sh",
                          wd=NULL, jobid="myjob", email=NULL,
-                         run=c(TRUE, "bigmemh", "1")){
+                         runinfo=c(TRUE, "bigmemh", "1")){
   ##### setup working directory
   if(is.null(wd)){
     wd <- getwd()
@@ -160,9 +160,10 @@ set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
   cat(shcode, file=slurmsh, sep="\n", append=TRUE)
 
   #### the sbatch code
-  runcode <- paste0("sbatch -p ", run[2], " --mem ", run[3], " --ntasks=", run[4], " ", slurmsh)
+  runinfo <- get_runinfo(runinfo)
+  runcode <- paste0("sbatch -p ", runinfo[2], " --mem ", run[4], " --ntasks=", run[3], " ", slurmsh)
 
-  if(run[1]){
+  if(runinfo[1]){
     message(runcode)
     system(runcode)
   }else{
