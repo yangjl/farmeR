@@ -4,7 +4,8 @@
 \alias{run_GenSel4}
 \title{\code{Run GenSel on farm}}
 \usage{
-run_GenSel4(inputdf, inpdir = "largedata/", cmdno = 1, email = NULL,
+run_GenSel4(inputdf, inpdir = "largedata/", cmdno = 1,
+  shid = "slurm-script/run_gensel_array.sh", email = NULL,
   runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
