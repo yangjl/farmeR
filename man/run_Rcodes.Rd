@@ -35,7 +35,9 @@ return a batch of shell scripts.
 \code{Run array job of R codes}
 }
 \examples{
-
+run_Rcodes(inputdf=data.frame(file=1:11, out=10), outdir="slurm-script", cmdno=10,
+           rcodes = "lib/C_format.R", arrayshid = "slurm-script/run_rcode_array.sh",
+           email=NULL, runinfo = c(FALSE, "bigmemh", 1))
 
 }
 
