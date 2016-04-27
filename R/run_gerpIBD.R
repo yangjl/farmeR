@@ -41,7 +41,7 @@ run_gerpIBD <- function(inputdf, email=NULL, runinfo = c(FALSE, "bigmemh", 1) ){
         paste("###", format(Sys.time(), "%a %b %d %X %Y")),
         paste(""),
         paste("gerpIBD -d", inputdf$d[i], "-s", inputdf$s[i], "-g", inputdf$g[i], "-f", inputdf$f[i],
-              "-o", inputdf$out[i], "-t", inputdf$t[i]),
+              "-o", inputdf$out[i], "-l", inputdf$l[i], "-t", inputdf$t[i]),
         file=shid, sep="\n", append=FALSE)
   }
 
