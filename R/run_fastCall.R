@@ -76,7 +76,7 @@ run_fastCall <- function(
 
     shid <- paste0(outdir, "/run_fastCall_chr", i, ".sh")
     cat(paste0("cd ", fastCallpwd),
-        paste0("java -Xmx", floor(as.numeric(run[4])/1024), "g -jar FastCall.jar ",
+        paste0("java -Xmx", floor((as.numeric(run[4]))/1024*0.8), "g -jar FastCall.jar ",
                parid,
                " > ", outdir, "/log_chr", i, ".txt"),
         file=shid, sep="\n", append=FALSE)
