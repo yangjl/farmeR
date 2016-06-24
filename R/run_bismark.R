@@ -47,8 +47,12 @@ run_bismark <- function(inputdf,
   ### determine memory based on partition
   runinfo <- get_runinfo(runinfo)
 
-
   for(i in 1:nrow(inputdf)){
+    if(sum(names(inputdf) %in% "bam") ==1){
+      bamfile <- inputdf$bam[i]
+    }else{
+      bamfile <- paste0(inputdf$out[i], "_pe.bam")
+    }
 
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
     cmd1 <- paste("bismark --bowtie2 -N", N, genome, "-p", runinfo[3],
@@ -56,8 +60,7 @@ run_bismark <- function(inputdf,
                   "--output_dir", outdir,  "--basename", inputdf$out[i])
     cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 50%",
                   "-o", outdir,
-                  "--CX --cytosine_report --genome_folder", genome,
-                  paste0(inputdf$out[i], "_pe.bam"))
+                  "--CX --cytosine_report --genome_folder", genome, bamfile)
 
     if(align){
       cmd <- c(cmd1, cmd2)

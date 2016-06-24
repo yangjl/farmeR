@@ -17,6 +17,8 @@ run_bismark(inputdf, genome = "/home/jolyang/dbcenter/AGP/AGPv2",
 
 \item{N}{Number of miss match.}
 
+\item{align}{Whether to conduct alignment, default=TRUE.}
+
 \item{email}{Your email address that farm will email to once the job was done/failed.}
 }
 \value{
