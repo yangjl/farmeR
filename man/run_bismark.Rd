@@ -9,7 +9,7 @@ run_bismark(inputdf, genome = "/home/jolyang/dbcenter/AGP/AGPv2",
   email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
-\item{inputdf}{An input data.frame object. Must contains fq1, fq2 and out, bam (optional).}
+\item{inputdf}{An input data.frame object. Must contains fq1, fq2 and outbase, bam (optional).}
 
 \item{genome}{The folder of genome prepared by bismark.}
 

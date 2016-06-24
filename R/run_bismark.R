@@ -21,7 +21,7 @@
 #' --cytosine_report --genome_folder /home/jolyang/dbcenter/AGP/AGPv2 test_pe.bam
 #' #<chromosome> <position> <strand> <count methylated> <count unmethylated> <C-context> <trinucleotide context>
 #'
-#' @param inputdf An input data.frame object. Must contains fq1, fq2 and out, bam (optional).
+#' @param inputdf An input data.frame object. Must contains fq1, fq2 and outbase, bam (optional).
 #' @param genome The folder of genome prepared by bismark.
 #' @param N Number of miss match.
 #' @param align Whether to conduct alignment, default=TRUE.
@@ -51,13 +51,13 @@ run_bismark <- function(inputdf,
     if(sum(names(inputdf) %in% "bam") ==1){
       bamfile <- inputdf$bam[i]
     }else{
-      bamfile <- paste0(inputdf$out[i], "_pe.bam")
+      bamfile <- paste0(outdir, "/", inputdf$outbase[i], "_pe.bam")
     }
 
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
     cmd1 <- paste("bismark --bowtie2 -N", N, genome, "-p", runinfo[3],
                   "-1", inputdf$fq1[i],  "-2", inputdf$fq2[i],
-                  "--output_dir", outdir,  "--basename", inputdf$out[i])
+                  "--output_dir", outdir,  "--basename", inputdf$outbase[i])
     cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 50%",
                   "-o", outdir,
                   "--CX --cytosine_report --genome_folder", genome, bamfile)
