@@ -30,68 +30,69 @@
 #'    chainLength=1000, burnin=100, varGenotypic=1.4, varResidual=2,
 #'    out="test_out")
 #'
-#' run_GenSel4(inputdf, inpdir="slurm-script", email=NULL, runinfo = c(FALSE, "bigmemh", 1) )
+#' run_ANGSD_sfs()
 #'
 #' @export
-run_ANGSD <- function(
-  inputdf, inpdir="largedata/", cmdno=1,
-  shid = "slurm-script/run_gensel_array.sh",
+run_ANGSD_sfs <- function(
+  shfile="slurm-script/run_angsd_cmd.sh",
+  bamlist="list.txt", outfile="out", ref="ref.fa", nInd=20, minInd=10,
+  indF="indF.txt", anc="ref.fa",
   email=NULL, runinfo = c(FALSE, "bigmemh", 1)
 ){
 
   runinfo <- get_runinfo(runinfo)
   #### create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
-  dir.create(inpdir, showWarnings = FALSE)
-
-  for(i in 1:nrow(inputdf)){
-    inpid <- paste0(inpdir, "/", inputdf$out[i], ".inp")
-    ### output the inp file:
-    GS_cv_inp(
-      inp= inpid, pi=inputdf$pi[i], geno=inputdf$geno[i],
-      trainpheno=inputdf$trainpheno[i], testpheno=inputdf$testpheno[i],
-      chainLength=inputdf$chainLength[i], burnin=inputdf$burnin[i],
-      varGenotypic=inputdf$varGenotypic[i], varResidual=inputdf$varResidual[i]
-    )
-  }
 
   ### setup shell id
-  set_GS(inputdf, cmdno, inpdir)
+  set_angsd_sfs(
+    shfile,
+    bamlist, outfile, ref, cpu=runinfo[3], nInd, minInd,
+    minMapQ=30, minQ=20,
+    glikehood=1, indF, anc,
+    doMajorMinor=1, doMaf=1, doSaf=2, uniqueOnly=0, baq=1
+  )
 
-  shcode <- paste0("sh ", inpdir, "/run_gensel_$SLURM_ARRAY_TASK_ID.sh")
-  set_array_job(shid=shid, shcode=shcode, arrayjobs=paste("1", nrow(inputdf)/cmdno, sep="-"),
-                wd=NULL, jobid="gensel", email=email, runinfo=runinfo)
+  cmd <- paste0("sh slurm-script/run_angsd_cmd.sh")
+  set_farm_job(slurmsh = "slurm-script/run_angsd_sfs.sh",
+               shcode = cmd, wd = NULL, jobid = "angsd", email=email,
+               runinfo=runinfo)
 }
 
-############################ GenSel for cross-validation
-set_angsd <- function(
+#######
+set_angsd_sfs <- function(
   shfile,
-  bamlist, outfile, ref, cpu, nInd,
+  bamlist, outfile, ref, cpu, nInd, minInd,
   minMapQ, minQ,
-  glikehood, indF, anc
-
+  glikehood, indF, anc,
+  doMajorMinor=1, doMaf=1, doSaf=2,
+  uniqueOnly=0, baq=1
 ){
 
   cat(paste("### ANGSD input file written at", Sys.time(), sep=" "),
 
       # Now redo angsd sample allele frequency calculation by conditioning
       # on the sites that occur in both populations.
+      # command1="-bam "$pop1List" -out "$outputdir"/"$pop1"_WholeGenome
+      # -doMajorMinor 1 -doMaf 1 -indF "$pop1F" -doSaf 2 -uniqueOnly 0
+      # -anc "$anc" -minMapQ $minMapQ -minQ 20 -nInd $nIndPop1 -minInd $minIndPop1
+      # -baq 1 -ref "$ref" -GL $glikehood -P $cpu -rf $regionfile"
+
 
       ### input bam file arguments:
-      paste("angsd -bam", bamlist),
-      paste("-out", outfile),
-      paste("-uniqueOnly 0 -minMapQ", minMapQ, "-minQ", minQ,  "-baq 1", "-ref", ref),
+      paste("angsd -bam", bamlist,
+      "-out", outfile,
+      "-uniqueOnly", uniqueOnly, "-minMapQ", minMapQ, "-minQ", minQ,  "-baq", baq, "-ref", ref,
 
       ### get MAF for fixed major and minor alleles
-      paste("-GL", glikehood, "-P", cpu),
-      paste("-doMajorMinor 1 -doMaf 1 -doSaf 2 "),
-      paste("-indF", indF, "-anc", anc),
+      "-GL", glikehood, "-P", cpu,
+      "-doMajorMinor", doMajorMinor,  "-doMaf", doMaf, "-doSaf", doSaf,
+      "-indF", indF, "-anc", anc,
 
       ### filters
-      paste("-nInd", nInd, "-minInd", minInd),
-
-
-      file=shfile, sep=" ", append=FALSE
-  )
+      "-nInd", nInd, "-minInd", minInd),
+      file=shfile, sep="\n", append=FALSE)
 }
+
+
 

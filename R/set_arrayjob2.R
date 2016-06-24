@@ -118,7 +118,7 @@ get_runinfo <- function(runinfo){
 #' " -o largedata/teo_updated/teo_raw_biallelic_recoded_20160303_AGPv2.txt")
 #'
 #' set_farm_job(slurmsh = "largedata/scripts/run_snpconvert.sh",
-#' shcode = cmd, wd = NULL, jobid = "snpconvert", email=NULL)
+#' shcode = cmd, wd = NULL, jobid = "snpconvert", email=NULL, runinfo=c(TRUE, "bigmemh", "1"))
 #'
 #' @export
 set_farm_job <- function(slurmsh="largedata/GenSel/CL_test.sh",
