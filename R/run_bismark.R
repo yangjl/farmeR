@@ -24,6 +24,7 @@
 #' @param inputdf An input data.frame object. Must contains fq1, fq2 and out, bam (optional).
 #' @param genome The folder of genome prepared by bismark.
 #' @param N Number of miss match.
+#' @param align Whether to conduct alignment, default=TRUE.
 #' @param outdir Folder for output.
 #' @param email Your email address that farm will email to once the job was done/failed.
 #'
