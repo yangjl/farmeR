@@ -58,7 +58,7 @@ run_bismark <- function(inputdf,
     cmd1 <- paste("bismark --bowtie2 -N", N, genome, "-p", runinfo[3],
                   "-1", inputdf$fq1[i],  "-2", inputdf$fq2[i],
                   "--output_dir", outdir,  "--basename", inputdf$outbase[i])
-    cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 50%",
+    cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 30%",
                   "-o", outdir,
                   "--CX --cytosine_report --genome_folder", genome, bamfile)
 
