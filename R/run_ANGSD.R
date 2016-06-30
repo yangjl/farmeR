@@ -22,18 +22,15 @@
 #' @return return a batch of shell scripts.
 #'
 #' @examples
-#' traits <- tolower(c("ASI", "DTP", "DTS", "EHT", "GY", "PHT", "TW"))
-#' inputdf <- data.frame(pi=0.995,
-#'    geno="/Users/yangjl/Documents/GWAS2_KRN/SNP/merged/geno_chr.newbin",
-#'    trainpheno="/Users/yangjl/Documents/Heterosis_GWAS/pheno2011/reports/cd_GenSel_fullset.txt",
-#'    testpheno="/Users/yangjl/Documents/Heterosis_GWAS/pheno2011/reports/cd_GenSel_fullset.txt",
-#'    chainLength=1000, burnin=100, varGenotypic=1.4, varResidual=2,
-#'    out="test_out")
+#' run_ANGSD(type="GL", shfile="slurm-script/run_angsd_cmd.sh",
+#' bamlist="list.txt", outfile="out", ref="ref.fa", nInd=20, minInd=10,
+#' indF="indF.txt", anc="ref.fa",
+#' email=NULL, runinfo = c(FALSE, "bigmemh", 1)
 #'
-#' run_ANGSD_sfs()
 #'
 #' @export
-run_ANGSD_sfs <- function(
+run_ANGSD <- function(
+  type="GL",
   shfile="slurm-script/run_angsd_cmd.sh",
   bamlist="list.txt", outfile="out", ref="ref.fa", nInd=20, minInd=10,
   indF="indF.txt", anc="ref.fa",
@@ -45,19 +42,32 @@ run_ANGSD_sfs <- function(
   dir.create("slurm-script", showWarnings = FALSE)
 
   ### setup shell id
-  set_angsd_sfs(
-    shfile,
-    bamlist, outfile, ref, cpu=runinfo[3], nInd, minInd,
-    minMapQ=30, minQ=20,
-    glikehood=1, indF, anc,
-    doMajorMinor=1, doMaf=1, doSaf=2, uniqueOnly=0, baq=1
-  )
+  if(type=="SFS"){
+    set_angsd_sfs(
+      shfile,
+      bamlist, outfile, ref, cpu=runinfo[3], nInd, minInd,
+      minMapQ=30, minQ=20,
+      glikehood=1, indF, anc,
+      doMajorMinor=1, doMaf=1, doSaf=2, uniqueOnly=0, baq=1
+    )
+  }
 
-  cmd <- paste0("sh slurm-script/run_angsd_cmd.sh")
-  set_farm_job(slurmsh = "slurm-script/run_angsd_sfs.sh",
+  if(type=="GL"){
+    set_angsd_gl(
+      shfile, bamlist, outfile, cpu=runinfo[3],
+      minMapQ=30,
+      glikehood=1,
+      doMajorMinor=1, doMaf=1,
+      doGlf=1, SNP_pval=2e-6
+    )
+  }
+
+  cmd <- paste0("sh ", shfile)
+  set_farm_job(slurmsh = "slurm-script/run_angsd.sh",
                shcode = cmd, wd = NULL, jobid = "angsd", email=email,
                runinfo=runinfo)
 }
+
 
 #######
 set_angsd_sfs <- function(
@@ -94,5 +104,34 @@ set_angsd_sfs <- function(
       file=shfile, sep="\n", append=FALSE)
 }
 
+#######
+set_angsd_gl <- function(
+  shfile,
+  bamlist, outfile, cpu,
+  minMapQ,
+  glikehood,
+  doMajorMinor=1, doMaf=1,
+  doGlf, SNP_pval
+){
+
+  cat(paste("### ANGSD input file written at", Sys.time(), sep=" "),
+      # $angsdir/angsd -bam $snpCallList -GL $glikehood -out $output/maize_snps_july -P $cpu
+      # -doMaf 1 -indF $popF -doMajorMinor 1 -doGeno 5 -doPost 1 -postCutoff 0.95
+      # -minMapQ $minMapQ -minQ 20 -minInd $minInd -rf $regionfile  -SNP_pval $SNP_pval
+
+      ### input bam file arguments:
+      paste("angsd -bam", bamlist,"-out", outfile, "-nThreads", cpu,
+            ### BAM filters
+            "-minMapQ", minMapQ,
+
+            ### get MAF for fixed major and minor alleles
+            "-GL", glikehood,
+            "-doMajorMinor", doMajorMinor,"-doMaf", doMaf, "-doGlf", doGlf,
+
+            ### test for polymorphic sites with the likelihood ratio test
+            "-SNP_pval", SNP_pval
+            ),
+      file=shfile, sep="\n", append=FALSE)
+}
 
 
