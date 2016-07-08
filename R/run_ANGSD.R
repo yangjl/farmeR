@@ -42,13 +42,13 @@ run_ANGSD <- function(
   dir.create("slurm-script", showWarnings = FALSE)
 
   ### setup shell id
-  if(type=="SFS"){
-    set_angsd_sfs(
+  if(type=="theta"){
+    set_angsd_theta(
       shfile,
       bamlist, outfile, ref, cpu=runinfo[3], nInd, minInd,
       minMapQ=30, minQ=20,
-      glikehood=1, indF, anc,
-      doMajorMinor=1, doMaf=1, doSaf=2, uniqueOnly=0, baq=1
+      glikehood=1, anc,
+      doMajorMinor=1, doMaf=1, doSaf=1, uniqueOnly=0, baq=1
     )
   }
 
@@ -70,11 +70,11 @@ run_ANGSD <- function(
 
 
 #######
-set_angsd_sfs <- function(
+set_angsd_theta <- function(
   shfile,
   bamlist, outfile, ref, cpu, nInd, minInd,
   minMapQ, minQ,
-  glikehood, indF, anc,
+  glikehood, anc,
   doMajorMinor=1, doMaf=1, doSaf=2,
   uniqueOnly=0, baq=1
 ){
@@ -97,11 +97,39 @@ set_angsd_sfs <- function(
       ### get MAF for fixed major and minor alleles
       "-GL", glikehood, "-P", cpu,
       "-doMajorMinor", doMajorMinor,  "-doMaf", doMaf, "-doSaf", doSaf,
-      "-indF", indF, "-anc", anc,
+      "-anc", anc,
 
       ### filters
       "-nInd", nInd, "-minInd", minInd),
       file=shfile, sep="\n", append=FALSE)
+
+  cat(### input bam file arguments:
+      "",
+      paste0("realSFS ", outfile, ".saf.idx", " -P ", cpu, " > ", outfile, ".sfs"),
+      "",
+      paste("angsd -bam", bamlist,
+            "-out", outfile,
+            "-pest", paste0(outfile, ".sfs"),
+            "-uniqueOnly", uniqueOnly, "-minMapQ", minMapQ, "-minQ", minQ,  "-baq", baq, "-ref", ref,
+
+            ### get MAF for fixed major and minor alleles
+            "-GL", glikehood, "-P", cpu,
+            "-doMajorMinor", doMajorMinor,  "-doMaf", doMaf, "-doSaf", doSaf,
+            "-anc", anc,
+
+            ### filters
+            "-nInd", nInd, "-minInd", minInd),
+      "",
+      paste("thetaStat make_bed", paste0(outfile, ".thetas.gz")),
+      "",
+      paste("#Estimate for every Chromosome/scaffold"),
+      paste("thetaStat do_stat", paste0(outfile, ".thetas.gz"), "-nChr", 2*nInd),
+      "",
+      paste("#Do a sliding window analysis based on the output from the make_bed command."),
+      paste("thetaStat do_stat", paste0(outfile, ".thetas.gz"), "-nChr", 2*nInd, "-win 50000 -step 10000  -outnames ",
+            paste0(outfile, ".thetasWindow.gz")),
+
+      file=shfile, sep="\n", append=T)
 }
 
 #######
