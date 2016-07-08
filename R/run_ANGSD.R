@@ -11,6 +11,7 @@
 #' @param inputdf An input data.frame.
 #' @param minQ Minimum base quality score.
 #' @param minMapQ [int]=0 Minimum mapQ quality.
+#' @parm r Chr regions.
 #'
 #' @param email Your email address that farm will email to once the jobs were done/failed.
 #' @param cmdno Number of commands per CPU, i.e. number of rows per inputdf.
@@ -33,13 +34,51 @@ run_ANGSD <- function(
   type="GL",
   shfile="slurm-script/run_angsd_cmd.sh",
   bamlist="list.txt", outfile="out", ref="ref.fa", nInd=20, minInd=10,
-  indF="indF.txt", anc="ref.fa",
+  indF="indF.txt", anc="ref.fa", r,
   email=NULL, runinfo = c(FALSE, "bigmemh", 1)
 ){
 
   runinfo <- get_runinfo(runinfo)
   #### create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
+
+
+  ### set the first several lines of the bash file
+  cat("#!/usr/bin/env bash",
+      "set -e",
+      "set -o pipefail",
+      "",
+      paste("### codes wrote by farmeR at", Sys.time(), sep=" "),
+      file=shfile, sep="\n", append=FALSE)
+
+  ### get gentoype likelihoods
+  if(type=="GL"){
+    #$ANGSD/angsd -doGlf 3 -doMajorMinor 1 -doMaf 1 -SNP_pval 1e-4 -out testF.HWE
+    set_angsd_gl(
+      shfile, r,
+      bamlist, outfile, cpu=runinfo[3],
+      ref, anc,
+      minMapQ=30,minQ=20,
+      glikehood=1,
+      doMajorMinor=1, doMaf=1,
+      doGlf=3, SNP_pval=2e-6
+    )
+    message(sprintf("### get gentoype likelihoods!"))
+  }
+
+  if(type == "indF"){
+    set_angsd_gl(
+      shfile, r,
+      bamlist, outfile, cpu=runinfo[3],
+      ref, anc,
+      minMapQ=30,minQ=20,
+      glikehood=1,
+      doMajorMinor=1, doMaf=1,
+      doGlf=3, SNP_pval=2e-6
+    )
+    set_angsd_indF(outfile, nInd)
+    message(sprintf("### get gentoype likelihoods and then indF!"))
+  }
 
   ### setup shell id
   if(type=="theta"){
@@ -49,16 +88,6 @@ run_ANGSD <- function(
       minMapQ=30, minQ=20,
       glikehood=1, anc,
       doMajorMinor=1, doMaf=1, doSaf=1, uniqueOnly=0, baq=1
-    )
-  }
-
-  if(type=="GL"){
-    set_angsd_gl(
-      shfile, bamlist, outfile, cpu=runinfo[3],
-      minMapQ=30,
-      glikehood=1,
-      doMajorMinor=1, doMaf=1,
-      doGlf=1, SNP_pval=2e-6
     )
   }
 
@@ -134,32 +163,84 @@ set_angsd_theta <- function(
 
 #######
 set_angsd_gl <- function(
-  shfile,
+  shfile, r,
   bamlist, outfile, cpu,
-  minMapQ,
+  ref, anc,
+  minMapQ,minQ,
   glikehood,
-  doMajorMinor=1, doMaf=1,
+  doMajorMinor, doMaf,
   doGlf, SNP_pval
 ){
+  if(is.null(r)){
+    cmd <- paste("angsd -bam", bamlist,
+                 "-out", outfile,
+                 "-nThreads", cpu,
 
-  cat(paste("### ANGSD input file written at", Sys.time(), sep=" "),
-      # $angsdir/angsd -bam $snpCallList -GL $glikehood -out $output/maize_snps_july -P $cpu
-      # -doMaf 1 -indF $popF -doMajorMinor 1 -doGeno 5 -doPost 1 -postCutoff 0.95
-      # -minMapQ $minMapQ -minQ 20 -minInd $minInd -rf $regionfile  -SNP_pval $SNP_pval
+                 "-doGlf", doGlf,
+                 "-GL", glikehood,
+                 "-ref", ref,
+                 "-anc", anc,
 
-      ### input bam file arguments:
-      paste("angsd -bam", bamlist,"-out", outfile, "-nThreads", cpu,
-            ### BAM filters
-            "-minMapQ", minMapQ,
+                 ### get MAF for fixed major and minor alleles
+                 "-doMajorMinor", doMajorMinor,
+                 "-doMaf", doMaf,
+                 "-minMapQ", minMapQ,
+                 "-minQ", minQ,
 
-            ### get MAF for fixed major and minor alleles
-            "-GL", glikehood,
-            "-doMajorMinor", doMajorMinor,"-doMaf", doMaf, "-doGlf", doGlf,
+                 ### test for polymorphic sites with the likelihood ratio test
+                 "-SNP_pval", SNP_pval)
+  }else{
+    cmd <- paste("angsd -bam", bamlist,
+                 "-out", outfile,
+                 "-nThreads", cpu,
+                 "-r", r,
 
-            ### test for polymorphic sites with the likelihood ratio test
-            "-SNP_pval", SNP_pval
-            ),
-      file=shfile, sep="\n", append=FALSE)
+                 "-doGlf", doGlf,
+                 "-GL", glikehood,
+                 "-ref", ref,
+                 "-anc", anc,
+
+                 ### get MAF for fixed major and minor alleles
+                 "-doMajorMinor", doMajorMinor,
+                 "-doMaf", doMaf,
+                 "-minMapQ", minMapQ,
+                 "-minQ", minQ,
+
+                 ### test for polymorphic sites with the likelihood ratio test
+                 "-SNP_pval", SNP_pval)
+  }
+
+  cat(cmd, file=shfile, sep="\n", append=TRUE)
+
 }
 
 
+#######
+set_angsd_indF <- function(
+  outfile, nInd
+){
+  glf.gz <- paste0(outfile, ".glf.gz")
+  approx_indF <- paste0(outfile, ".approx_indF")
+  indF <- paste0(outfile, ".indF")
+
+  #N_SITES=$((`zcat testF.HWE.mafs.gz | wc -l`-1))
+  cmd1 <- paste("N_SITES=$((`zcat", glf.gz, "| wc -l`-1))")
+
+  #zcat testF.HWE.glf.gz | ../ngsF --n_ind 20 --n_sites $N_SITES --glf -
+  #--min_epsilon 0.001 --out testF.approx_indF --approx_EM --seed 12345 --init_values r
+  cmd2 <- paste("zcat", glf.gz, "| ngsF", "--n_ind", nInd,
+                "--n_sites $N_SITES --glf -",
+                "--out", approx_indF,
+                "--min_epsilon 0.001 --approx_EM --seed 12345 --init_values r")
+
+  #zcat testF.HWE.glf.gz | ../ngsF --n_ind 20 --n_sites $N_SITES --glf -
+  #--min_epsilon 0.001 --out testF.indF --init_values testF.approx_indF.pars
+  cmd3 <- paste("zcat", glf.gz, "| ngsF", "--n_ind", nInd,
+                "--n_sites $N_SITES --glf -",
+                "--out", indF,
+                "--min_epsilon 0.001 --init_values", paste0(approx_indF, ".pars"))
+
+  cat(cmd1, cmd2, cmd3,
+      file=shfile, sep="\n", append=TRUE)
+
+}
