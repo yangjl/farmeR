@@ -7,6 +7,10 @@
 #'
 #' @param df Data.frame with fq and out columns.
 #' fq is the path of your fastq files and out is the path of your output file.
+#'
+#' @param q Default=20. Note:use -q0 to get the distribution of all quality values
+#' @param genomesize Maize genome size, default=2500000000.
+#'
 #' @param email Your email address that farm will email to once the job was done/failed.
 #' @param runinfo Parameters specify the array job partition information.
 #' A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
@@ -23,7 +27,7 @@
 #' run_fastq_qc(df, email=NULL, runinfo = c(FALSE, "bigmemh", 1))
 #'
 #' @export
-run_fastq_qc <- function(df, email=NULL, runinfo = c(FALSE, "bigmemh", 1)){
+run_fastq_qc <- function(df, q=20, email=NULL, runinfo = c(FALSE, "bigmemh", 1)){
 
   # create dir if not exist
   dir.create("slurm-script", showWarnings = FALSE)
@@ -37,4 +41,19 @@ run_fastq_qc <- function(df, email=NULL, runinfo = c(FALSE, "bigmemh", 1)){
   set_array_job(shid="slurm-script/run_fqqc_array.sh",
                 shcode=shcode, arrayjobs=paste("1", nrow(df), sep="-"),
                 wd=NULL, jobid="fqQC", email=email, runinfo=runinfo)
+}
+
+#' @export
+get_qc <- function(files, genomesize=2500000000){
+  df <- data.frame()
+  for(i in 1:length(files)){
+    qc <- read.delim(files[i], skip = 2, header=FALSE)
+    names(qc) <- c("pos", "bases", "A", "C", "G", "T", "N", "avgQ", "errQ", "plow", "phigh")
+    #bases <- nrow(qc) -1
+    tem <- data.frame(qc[1, ], bp=nrow(qc) -1, file=files[i])
+    df <- rbind(df, tem)
+  }
+  df$depth <- df$bases/genomesize
+  return(df)
+
 }
