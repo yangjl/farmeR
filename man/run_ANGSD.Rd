@@ -6,7 +6,7 @@
 \usage{
 run_ANGSD(type = "GL", shfile = "slurm-script/run_angsd_cmd.sh",
   bamlist = "list.txt", outfile = "out", ref = "ref.fa", nInd = 20,
-  minInd = 10, indF = "indF.txt", anc = "ref.fa", email = NULL,
+  minInd = 10, indF = "indF.txt", anc = "ref.fa", r, email = NULL,
   runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{

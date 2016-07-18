@@ -15,7 +15,9 @@ run_bismark(inputdf, genome = "/home/jolyang/dbcenter/AGP/AGPv2",
 
 \item{outdir}{Folder for output.}
 
-\item{N}{Number of miss match.}
+\item{N}{Number of mismatches. Sets the number of mismatches to allowed in a seed alignment during multiseed alignment.
+Can be set to 0 or 1. Setting this higher makes alignment slower (often much slower)
+but increases sensitivity. Default: 0. This option is only available for Bowtie 2 (for Bowtie 1 see -n).}
 
 \item{align}{Whether to conduct alignment, default=TRUE.}
 
