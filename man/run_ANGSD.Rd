@@ -22,8 +22,6 @@ It will pass to \code{set_array_job}.}
 \item{minQ}{Minimum base quality score.}
 
 \item{minMapQ}{[int]=0 Minimum mapQ quality.}
-
-\item{cmdno}{Number of commands per CPU, i.e. number of rows per inputdf.}
 }
 \value{
 return a batch of shell scripts.
