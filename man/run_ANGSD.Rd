@@ -10,6 +10,8 @@ run_ANGSD(type = "GL", shfile = "slurm-script/run_angsd_cmd.sh",
   runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
+\item{r}{Chr regions.}
+
 \item{email}{Your email address that farm will email to once the jobs were done/failed.}
 
 \item{runinfo}{Parameters specify the array job partition information.

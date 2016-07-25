@@ -11,7 +11,7 @@
 #' @param inputdf An input data.frame.
 #' @param minQ Minimum base quality score.
 #' @param minMapQ [int]=0 Minimum mapQ quality.
-#' @parm r Chr regions.
+#' @param r Chr regions.
 #'
 #' @param email Your email address that farm will email to once the jobs were done/failed.
 #' @param runinfo Parameters specify the array job partition information.
