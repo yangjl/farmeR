@@ -11,7 +11,8 @@ run_bismark(inputdf, genome = "/home/jolyang/dbcenter/AGP/AGPv2",
 \arguments{
 \item{inputdf}{An input data.frame object. Must contains fq1, fq2 and outbase, bam (optional).}
 
-\item{genome}{The folder of genome prepared by bismark.}
+\item{genome}{The folder of genome prepared by bismark.
+If genome is NULL, then genome will read from inputdf column: 'genome'.}
 
 \item{outdir}{Folder for output.}
 

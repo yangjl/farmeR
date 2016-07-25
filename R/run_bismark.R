@@ -23,6 +23,7 @@
 #'
 #' @param inputdf An input data.frame object. Must contains fq1, fq2 and outbase, bam (optional).
 #' @param genome The folder of genome prepared by bismark.
+#'               If genome is NULL, then genome will read from inputdf column: 'genome'.
 #' @param N Number of mismatches. Sets the number of mismatches to allowed in a seed alignment during multiseed alignment.
 #'          Can be set to 0 or 1. Setting this higher makes alignment slower (often much slower)
 #'          but increases sensitivity. Default: 0. This option is only available for Bowtie 2 (for Bowtie 1 see -n).
@@ -57,6 +58,10 @@ run_bismark <- function(inputdf,
     }
 
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
+
+    if(is.null(genome)){
+      genome <- inputdf$genome[i]
+    }
 
     ## ambiguous --np <int> Sets penalty for positions where the read, reference, or both,
     ## contain an ambiguous character such as N. Default: 1.
