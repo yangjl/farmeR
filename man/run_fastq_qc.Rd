@@ -4,11 +4,14 @@
 \alias{run_fastq_qc}
 \title{\code{Run fastq QC.}}
 \usage{
-run_fastq_qc(df, q = 20, email = NULL, runinfo = c(FALSE, "bigmemh", 1))
+run_fastq_qc(df, method = "seqtk", q = 20, email = NULL,
+  runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
 \item{df}{Data.frame with fq and out columns.
 fq is the path of your fastq files and out is the path of your output file.}
+
+\item{method}{Method for QC, "seqtk" or "FastQC" only.}
 
 \item{q}{Default=20. Note:use -q0 to get the distribution of all quality values}
 
