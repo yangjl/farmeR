@@ -22,7 +22,11 @@ get_file2tab <- function(files, features, replace=T ){
     for(j in 1:length(features)){
       val1 <- grep(features[j], text, value=TRUE)
       if(replace){val1 <- gsub(features[j], "", val1)}
-      out[i,j] <- val1
+      if(length(val1)==0) {
+        out[i,j] <- NA
+      }else{
+        out[i,j] <- val1
+      }
     }
   }
   return(out)

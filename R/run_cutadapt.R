@@ -6,7 +6,7 @@
 #' https://cutadapt.readthedocs.io/en/stable/index.html
 #' version: v1.10
 #'
-#' @param inputdf Data.frame with fq1, fq2, out1 and out2 columns. Both input and output can be gzipped (.gz).
+#' @param inputdf Data.frame with fq1, fq2, out1, out2, and report columns. Both input and output can be gzipped (.gz).
 #' @param ad1 Adapter 3' method, see cutadapt documentation for more details. Same for ad2.
 #'
 #' @param q quality_cutoff Default=20. Note:use -q0 to get the distribution of all quality values
@@ -51,7 +51,8 @@ set_trim_PE <- function(inputdf, i, ad1, ad2, quality_cutoff){
   cmd <- paste("cutadapt -a", ad1, "-A", ad2,
                "-o", inputdf$out1[i], "-p", inputdf$out2[i],
                "-q", quality_cutoff,
-               inputdf$fq1[i], inputdf$fq2[i])
+               inputdf$fq1[i], inputdf$fq2[i],
+               ">", inputdf$report[i])
   return(cmd)
 }
 
