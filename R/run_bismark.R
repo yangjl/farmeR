@@ -60,17 +60,17 @@ run_bismark <- function(inputdf,
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
 
     if(is.null(genome)){
-      genome <- inputdf$genome[i]
+      mygenome <- inputdf$genome[i]
     }
 
     ## ambiguous --np <int> Sets penalty for positions where the read, reference, or both,
     ## contain an ambiguous character such as N. Default: 1.
-    cmd1 <- paste("bismark --bowtie2 -N", N, genome, "-p", runinfo[3],
+    cmd1 <- paste("bismark --bowtie2 -N", N, mygenome, "-p", runinfo[3],
                   "-1", inputdf$fq1[i],  "-2", inputdf$fq2[i],
                   "--output_dir", outdir,  "--basename", inputdf$outbase[i])
     cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 30%",
                   "-o", outdir,
-                  "--CX --cytosine_report --genome_folder", genome, bamfile)
+                  "--CX --cytosine_report --genome_folder", mygenome, bamfile)
 
     if(align){
       cmd <- c(cmd1, cmd2)
