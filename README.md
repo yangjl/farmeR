@@ -1,3 +1,4 @@
+<!--
 [![Build Status](https://travis-ci.org/dmlc/xgboost.svg?branch=master)](https://travis-ci.org/dmlc/xgboost)
 [![Documentation Status](https://readthedocs.org/projects/xgboost/badge/?version=latest)](https://xgboost.readthedocs.org)
 [![GitHub license](http://dmlc.github.io/img/apache2.svg)](./LICENSE)
@@ -10,6 +11,7 @@
 [Installation](https://xgboost.readthedocs.org/en/latest/build.html) |
 [Release Notes](NEWS.md) |
 [RoadMap](https://github.com/dmlc/xgboost/issues/873)
+-->
 
 This is an R packages to generate genomic and bioinformatic pipelines and submit jobs on HPC system running slurm.
 
