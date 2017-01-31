@@ -11,10 +11,9 @@
 #' @param inputdf An input data.frame.
 #' @param minQ Minimum base quality score.
 #' @param minMapQ [int]=0 Minimum mapQ quality.
-#' @parm r Chr regions.
+#' @param r Chr regions.
 #'
 #' @param email Your email address that farm will email to once the jobs were done/failed.
-#' @param cmdno Number of commands per CPU, i.e. number of rows per inputdf.
 #' @param runinfo Parameters specify the array job partition information.
 #' A vector of c(FALSE, "bigmemh", "1"): 1) run or not, default=FALSE
 #' 2) -p partition name, default=bigmemh and 3) --cpus, default=1.

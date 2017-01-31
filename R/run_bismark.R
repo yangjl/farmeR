@@ -23,7 +23,10 @@
 #'
 #' @param inputdf An input data.frame object. Must contains fq1, fq2 and outbase, bam (optional).
 #' @param genome The folder of genome prepared by bismark.
-#' @param N Number of miss match.
+#'               If genome is NULL, then genome will read from inputdf column: 'genome'.
+#' @param N Number of mismatches. Sets the number of mismatches to allowed in a seed alignment during multiseed alignment.
+#'          Can be set to 0 or 1. Setting this higher makes alignment slower (often much slower)
+#'          but increases sensitivity. Default: 0. This option is only available for Bowtie 2 (for Bowtie 1 see -n).
 #' @param align Whether to conduct alignment, default=TRUE.
 #' @param outdir Folder for output.
 #' @param email Your email address that farm will email to once the job was done/failed.
@@ -55,12 +58,19 @@ run_bismark <- function(inputdf,
     }
 
     shid <- paste0("slurm-script/run_bismark_", i, ".sh")
-    cmd1 <- paste("bismark --bowtie2 -N", N, genome, "-p", runinfo[3],
+
+    if(is.null(genome)){
+      mygenome <- inputdf$genome[i]
+    }
+
+    ## ambiguous --np <int> Sets penalty for positions where the read, reference, or both,
+    ## contain an ambiguous character such as N. Default: 1.
+    cmd1 <- paste("bismark --bowtie2 -N", N, mygenome, "-p", runinfo[3],
                   "-1", inputdf$fq1[i],  "-2", inputdf$fq2[i],
                   "--output_dir", outdir,  "--basename", inputdf$outbase[i])
     cmd2 <- paste("bismark_methylation_extractor -p --bedGraph --counts --buffer_size 30%",
                   "-o", outdir,
-                  "--CX --cytosine_report --genome_folder", genome, bamfile)
+                  "--CX --cytosine_report --genome_folder", mygenome, bamfile)
 
     if(align){
       cmd <- c(cmd1, cmd2)

@@ -6,10 +6,12 @@
 \usage{
 run_ANGSD(type = "GL", shfile = "slurm-script/run_angsd_cmd.sh",
   bamlist = "list.txt", outfile = "out", ref = "ref.fa", nInd = 20,
-  minInd = 10, indF = "indF.txt", anc = "ref.fa", email = NULL,
+  minInd = 10, indF = "indF.txt", anc = "ref.fa", r, email = NULL,
   runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
+\item{r}{Chr regions.}
+
 \item{email}{Your email address that farm will email to once the jobs were done/failed.}
 
 \item{runinfo}{Parameters specify the array job partition information.
@@ -22,8 +24,6 @@ It will pass to \code{set_array_job}.}
 \item{minQ}{Minimum base quality score.}
 
 \item{minMapQ}{[int]=0 Minimum mapQ quality.}
-
-\item{cmdno}{Number of commands per CPU, i.e. number of rows per inputdf.}
 }
 \value{
 return a batch of shell scripts.
