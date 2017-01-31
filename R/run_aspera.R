@@ -1,6 +1,8 @@
 #' \code{Run Aspera Connect to download from SRA.}
 #'
 #' Downloading SRA using 'ascp' utility or Aspera Connect.
+#' How to download and install 'ascp':
+#' \url{http://downloads.asperasoft.com/en/downloads/8?list}
 #'
 #' see more detail about SRA with Aspera downloading:
 #' \url{http://www.ncbi.nlm.nih.gov/books/NBK158899/#SRA_download.downloading_sra_data_using}
