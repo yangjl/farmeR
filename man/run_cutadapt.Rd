@@ -8,7 +8,7 @@ run_cutadapt(inputdf, ad1 = "AGATCGGAAGAGC", ad2 = "AGATCGGAAGAGC",
   q = 20, email = NULL, runinfo = c(FALSE, "bigmemh", 1))
 }
 \arguments{
-\item{inputdf}{Data.frame with fq1, fq2, out1 and out2 columns. Both input and output can be gzipped (.gz).}
+\item{inputdf}{Data.frame with fq1, fq2, out1, out2, and report columns. Both input and output can be gzipped (.gz).}
 
 \item{ad1}{Adapter 3' method, see cutadapt documentation for more details. Same for ad2.}
 
@@ -36,8 +36,8 @@ version: v1.10
 fqs <- c("$HOME/dbcenter/Ecoli/fastq/SRR2921970.sra_1.fastq.gz",
          "$HOME/dbcenter/Ecoli/fastq/SRR2921970.sra_2.fastq.gz")
 inputdf <- data.frame(fq1=fqs[1], fq2=fqs[2], out1=fqs[1], out2=fqs[2])
-df$out <- gsub("sra_.*", "qc", df$out)
-run_fastq_qc(df, email=NULL, runinfo = c(FALSE, "bigmemh", 1))
+run_cutadapt(inputdf, ad1="AGATCGGAAGAGC", ad2="AGATCGGAAGAGC", q=20,
+             email=NULL, runinfo = c(FALSE, "bigmemh", 1))
 
 }
 

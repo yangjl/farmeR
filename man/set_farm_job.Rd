@@ -6,7 +6,7 @@
 \usage{
 set_farm_job(slurmsh = "largedata/GenSel/CL_test.sh",
   shcode = "sh largedata/myscript.sh", wd = NULL, jobid = "myjob",
-  email = NULL, runinfo = c(TRUE, "bigmemh", "1"))
+  email = NULL, runinfo = c(TRUE, "bigmemh", "1", "2G", "8:00:00"))
 }
 \arguments{
 \item{slurmsh}{Relative or absolute path and file name of your shell code, i.e. largedata/GenSel/CL_test.sh.}
@@ -19,7 +19,7 @@ set_farm_job(slurmsh = "largedata/GenSel/CL_test.sh",
 
 \item{email}{Your email address that farm will email to once the job was done/failed.}
 
-\item{runinfo}{Parameters control the array job partition.
+\item{runinfo}{Parameters control the array job partition. c(TRUE, "bigmemh", "1", "2G", "8:00:00")
 A vector of c(TRUE, "bigmemh", "1"): 1) run or not, 2) -p partition name, 3)  --ntasks.}
 }
 \value{

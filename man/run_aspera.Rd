@@ -25,6 +25,8 @@ return a batch of shell scripts.
 }
 \description{
 Downloading SRA using 'ascp' utility or Aspera Connect.
+How to download and install 'ascp':
+\url{http://downloads.asperasoft.com/en/downloads/8?list}
 }
 \details{
 see more detail about SRA with Aspera downloading:
