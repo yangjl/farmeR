@@ -166,7 +166,7 @@ set_GS <- function(inputdf, cmdno, inpdir){
     sh2 <- c(paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".mcmcSamples1"),
              paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".mrkRes1"),
              paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".inp"),
-             paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".out1"),
+             #paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".out1"),
              paste0("rm ", inpdir, "/", inputdf$out[srow:erow], ".cgrRes1"))
     cat(paste("### run GenSel", Sys.time(), sep=" "),
         c(sh1, sh2),
